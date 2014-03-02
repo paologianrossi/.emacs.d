@@ -1,403 +1,47 @@
-;;  Prevent the cursor from blinking
-(blink-cursor-mode 0)
-(require 'package)
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes (quote ("dd4db38519d2ad7eb9e2f30bc03fba61a7af49a185edfd44e020aa5345e3dca7" default))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-;;  Don't use messages that you don't read
-(setq initial-scratch-message  "")
-(setq inhibit-startup-message t)
-
-;;  Don't let Emacs hurt your ears
-(setq visible-bell t)
-
-;;  You need to set ` inhibit-startup-echo-area-message ' from the
-;;  customization interface:
-;;  M-x customize-variable RET inhibit-startup-echo-area-message RET
-;;  then enter your username
-(setq inhibit-startup-echo-area-message  "paolog")
-
-(scroll-bar-mode 0)
-(tool-bar-mode 0)
-(menu-bar-mode 0)
-
-(setq mac-command-modifier 'meta)
-(setq mac-option-modifier 'super)
-;;; if on the Mac, right alt should be alt (not meta, hyper or whatever)
-(setq mac-right-option-modifier nil)
-
-;; Write backup files to own directory
-(setq backup-directory-alist
-      `(("." . ,(expand-file-name
-                 (concat user-emacs-directory "backups")))))
-
-;; Make backups of files, even when they're in version control
-(setq vc-make-backup-files t)
-
-(require 'saveplace)
-(setq-default save-place t)
-(setq save-place-file (expand-file-name ".places" user-emacs-directory))
-
-(add-to-list 'package-archives
-    '("marmalade" .
-      "http://marmalade-repo.org/packages/"))
-(package-initialize)
-
-(load-theme 'zenburn)
-
-(global-set-key [remap goto-line] 'goto-line-with-feedback)
-
-(defun goto-line-with-feedback ()
-  "Show line numbers temporarily, while prompting for the line number input"
-  (interactive)
-  (unwind-protect
-      (progn
-        (linum-mode 1)
-        (goto-line (read-number "Goto line: ")))
-    (linum-mode -1)))
-
-;; diminish
-(require 'diminish)
-
-;; full screen magit-status
-(require 'magit)
-(require 'magithub)
-(require 'magit-find-file)
-
-(defadvice magit-status (around magit-fullscreen activate)
-  (window-configuration-to-register :magit-fullscreen)
-  ad-do-it
-  (delete-other-windows))
-
-(global-set-key (kbd "C-x g") 'magit-status)
-
-(defun magit-quit-session ()
-  "Restores the previous window configuration and kills the magit buffer"
-  (interactive)
-  (kill-buffer)
-  (jump-to-register :magit-fullscreen))
-
-(define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
-
-;; Auto refresh buffers
-(global-auto-revert-mode 1)
-
-;; Also auto refresh dired, but be quiet about it
-(setq global-auto-revert-non-file-buffers t)
-(setq auto-revert-verbose nil)
-
-(defun magit-toggle-whitespace ()
-  (interactive)
-  (if (member "-w" magit-diff-options)
-      (magit-dont-ignore-whitespace)
-    (magit-ignore-whitespace)))
-
-(defun magit-ignore-whitespace ()
-  (interactive)
-  (add-to-list 'magit-diff-options "-w")
-  (magit-refresh))
-
-(defun magit-dont-ignore-whitespace ()
-  (interactive)
-  (setq magit-diff-options (remove "-w" magit-diff-options))
-  (magit-refresh))
-
-(define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-
-(require 'dired)
-(defun comint-delchar-or-eof-or-kill-buffer (arg)
-  (interactive "p")
-  (if (null (get-buffer-process (current-buffer)))
-      (kill-buffer)
-    (comint-delchar-or-maybe-eof arg)))
-
-(add-hook 'shell-mode-hook
-          (lambda ()
-            (define-key shell-mode-map
-              (kbd "C-d") 'comint-delchar-or-eof-or-kill-buffer)))
-
-(defun open-line-below ()
-  (interactive)
-  (end-of-line)
-  (newline)
-  (indent-for-tab-command))
-
-(defun open-line-above ()
-  (interactive)
-  (beginning-of-line)
-  (newline)
-  (forward-line -1)
-  (indent-for-tab-command))
-
-(global-set-key (kbd "<C-return>") 'open-line-below)
-(global-set-key (kbd "<C-S-return>") 'open-line-above)
-
-(defun move-line-down ()
-  (interactive)
-  (let ((col (current-column)))
-    (save-excursion
-      (forward-line)
-      (transpose-lines 1))
-    (forward-line)
-    (move-to-column col)))
-
-(defun move-line-up ()
-  (interactive)
-  (let ((col (current-column)))
-    (save-excursion
-      (forward-line)
-      (transpose-lines -1))
-    (move-to-column col)))
-
-(global-set-key (kbd "<C-S-down>") 'move-line-down)
-(global-set-key (kbd "<C-S-up>") 'move-line-up)
-
-
-
-(defun rename-current-buffer-file ()
-  "Renames current buffer and file it is visiting."
-  (interactive)
-  (let ((name (buffer-name))
-        (filename (buffer-file-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (error "Buffer '%s' is not visiting a file!" name)
-      (let ((new-name (read-file-name "New name: " filename)))
-        (if (get-buffer new-name)
-            (error "A buffer named '%s' already exists!" new-name)
-          (rename-file filename new-name 1)
-          (rename-buffer new-name)
-          (set-visited-file-name new-name)
-          (set-buffer-modified-p nil)
-          (message "File '%s' successfully renamed to '%s'"
-                   name (file-name-nondirectory new-name)))))))
-
-(global-set-key (kbd "C-x C-r") 'rename-current-buffer-file)
-
-(defun delete-current-buffer-file ()
-  "Removes file connected to current buffer and kills buffer."
-  (interactive)
-  (let ((filename (buffer-file-name))
-        (buffer (current-buffer))
-        (name (buffer-name)))
-    (if (not (and filename (file-exists-p filename)))
-        (ido-kill-buffer)
-      (when (yes-or-no-p "Are you sure you want to remove this file? ")
-        (delete-file filename)
-        (kill-buffer buffer)
-        (message "File '%s' successfully removed" filename)))))
-
-(global-set-key (kbd "C-x C-k") 'delete-current-buffer-file)
-
-;; Make dired less verbose
-(require 'dired-details)
-(setq-default dired-details-hidden-string "--- ")
-(dired-details-install)
-
-;; Use ido everywhere
-(require 'ido)
-(ido-mode 1)
-(require 'ido-ubiquitous)
-(ido-ubiquitous-mode 1)
-
-;; Fix ido-ubiquitous for newer packages
-(defmacro ido-ubiquitous-use-new-completing-read (cmd package)
-  `(eval-after-load ,package
-     '(defadvice ,cmd (around ido-ubiquitous-new activate)
-        (let ((ido-ubiquitous-enable-compatibility nil))
-          ad-do-it))))
-
-(ido-ubiquitous-use-new-completing-read webjump 'webjump)
-(ido-ubiquitous-use-new-completing-read yas/expand 'yasnippet)
-(ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
-
-
-(global-set-key (kbd "M-j")
-		(lambda ()
-                  (interactive)
-                  (join-line -1)))
-
-(defun dired-back-to-top ()
-  (interactive)
-  (beginning-of-buffer)
-  (dired-next-line 4))
-
-(define-key dired-mode-map
-  (vector 'remap 'beginning-of-buffer) 'dired-back-to-top)
-
-(define-key dired-mode-map
-  (kbd "e")
-  (lambda () (interactive)
-    (dired-do-shell-command "open" nil (dired-get-marked-files))))
-
-(defun dired-jump-to-bottom ()
-  (interactive)
-  (end-of-buffer)
-  (dired-next-line -1))
-
-(define-key dired-mode-map
-  (vector 'remap 'end-of-buffer) 'dired-jump-to-bottom)
-
-(add-hook 'ido-setup-hook
- (lambda ()
-   ;; Go straight home
-   (define-key ido-file-completion-map
-     (kbd "~")
-     (lambda ()
-       (interactive)
-       (if (looking-back "/~")
-           (insert "/")
-         (call-interactively 'self-insert-command))))))
-
-(defun magit-just-amend ()
-  (interactive)
-  (save-window-excursion
-    (magit-with-refresh
-      (shell-command "git --no-pager commit --amend --reuse-message=HEAD"))))
-
-(eval-after-load "magit"
-  '(define-key magit-status-mode-map (kbd "C-c C-a") 'magit-just-amend))
-
-
-(require 'smart-mode-line)
-(setq sml/theme 'respectful)
-(sml/setup)
-(setq indicate-empty-lines t)
-
-;; From:
-;; http://emacs-fu.blogspot.co.uk/2011/01/setting-frame-title.html
-(setq frame-title-format
-      '((:eval (if (buffer-file-name)
-                   (abbreviate-file-name (buffer-file-name))
-                 "%b"))))
-
-;; I got sick of typing "yes"
-(defalias 'yes-or-no-p 'y-or-n-p)
-
-;; I prefer spaces over tabs
-(setq-default
- indent-tabs-mode nil
- ;; ... and I prefer 4-space indents
- tab-width 4)
-
-;; UTF-8 please!
-(set-terminal-coding-system 'utf-8)
-(set-keyboard-coding-system 'utf-8)
-(prefer-coding-system 'utf-8)
-
-(defadvice kill-ring-save (before slick-copy activate compile) "When called
-  interactively with no active region, copy a single line instead."
-  (interactive (if mark-active (list (region-beginning) (region-end)) (message
-  "Copied line") (list (line-beginning-position) (line-beginning-position
-  2)))))
-
-(defadvice kill-region (before slick-cut activate compile)
-  "When called interactively with no active region, kill a single line instead."
-  (interactive
-    (if mark-active (list (region-beginning) (region-end))
-      (list (line-beginning-position)
-        (line-beginning-position 2)))))
-
-(defun djcb-find-file-as-root ()
-  "Like `ido-find-file, but automatically edit the file with
-root-privileges (using tramp/sudo), if the file is not writable by
-user."
-  (interactive)
-  (let ((file (ido-read-file-name "Edit as root: ")))
-    (unless (file-writable-p file)
-      (setq file (concat "/sudo:root@localhost:" file)))
-    (find-file file)))
-;; or some other keybinding...
-(global-set-key (kbd "C-x F") 'djcb-find-file-as-root)
-
-;; nuke trailing whitespace when writing to a file
-(add-hook 'write-file-hooks 'delete-trailing-whitespace)
-
-;; always add a trailing newline - it's POSIX
-(setq require-final-newline t)
-
-;; http://emacs-fu.blogspot.hk/2009/11/copying-lines-without-selecting-them.html
-(defadvice kill-ring-save (before slick-copy activate compile)
-  "When called interactively with no active region, copy a single line instead."
-  (interactive
-   (if mark-active (list (region-beginning) (region-end))
-     (message "Copied line")
-     (list (line-beginning-position)
-           (line-beginning-position
-            2)))))
-
-(defadvice kill-region (before slick-cut activate compile)
-  "When called interactively with no active region, kill a single line instead."
-  (interactive
-    (if mark-active (list (region-beginning) (region-end))
-      (list (line-beginning-position)
-            (line-beginning-position 2)))))
-
-(defun cycle-fullscreen ()
-  (interactive)
-  (let ((flow '((nil . 'maximized) (maximized . 'fullboth)
-                (fullboth . 'fullwidth) (fullwidth . 'fullheight)
-                (fullheight . nil))) (current (frame-parameter nil 'fullscreen)))
-    (set-frame-parameter nil 'fullscreen (car (cdr (assoc-default current flow nil nil))))
-    ))
-
-(global-set-key (kbd "<s-return>") 'cycle-fullscreen)
-
-(defadvice move-beginning-of-line (around smarter-bol activate)
-  ;; Move to requested line if needed.
-  (let ((arg (or (ad-get-arg 0) 1)))
-    (when (/= arg 1)
-      (forward-line (1- arg))))
-  ;; Move to indentation on first call, then to actual BOL on second.
-  (let ((pos (point)))
-    (back-to-indentation)
-    (when (= pos (point))
-      ad-do-it)))
-
-;; enable hl-line-mode for prog-mode
-(add-hook 'prog-mode-hook (lambda () (interactive) (hl-line-mode 1)))
-
-;; I want to use narrowing
-(put 'narrow-to-defun 'disabled nil)
-(put 'narrow-to-page 'disabled nil)
-(put 'narrow-to-region 'disabled nil)
-
-;; I want to use scrolling
-(put 'scroll-left 'disabled nil)
-
-(setq minibuffer-prompt-properties (add-to-list 'minibuffer-prompt-properties 'minibuffer-avoid-prompt))
-(setq minibuffer-prompt-properties (add-to-list 'minibuffer-prompt-properties 'point-entered))
-
-;; Activate occur easily inside isearch
-(define-key isearch-mode-map (kbd "C-o") 'isearch-occur)
-
-(global-set-key (kbd "C-x C-b") 'ibuffer)
-
-;; Use hippie-expand instead of dabbrev
-(global-set-key (kbd "M-/") 'hippie-expand)
-
-(global-set-key (kbd "C-h C-f") 'find-function)
-
-(global-set-key (kbd "M-p") 'magit-find-file-completing-read)
-
-;; mnemonic keybindings for window splitting (copies my tmux bindings)
-(global-set-key (kbd "C-x |") 'split-window-right)
-(global-set-key (kbd "C-x -") 'split-window-below)
-
-;; terminal-related bindings
-(global-set-key (kbd "C-c t") 'bw-open-term)
-(global-set-key (kbd "C-c C-t t") 'ansi-term)
-(global-set-key (kbd "C-c C-t e") 'eshell)
-
-;; (use-package ace-jump-mode
-;;              :bind ("C-c SPC" . ace-jump-mode))
+;;; init.el --- Where all the magic begins
+;;
+;; This file loads Org-mode and then loads the rest of our Emacs initialization from Emacs lisp
+;; embedded in literate Org-mode files.
+
+;; Load up Org Mode and (now included) Org Babel for elisp embedded in Org Mode files
+
+(setq dotfiles-dir (file-name-directory (or (buffer-file-name) load-file-name)))
+(setq build-dir (expand-file-name "build/" dotfiles-dir))
+
+(let* ((org-dir (expand-file-name
+                 "lisp" (expand-file-name
+                         "org" (expand-file-name
+                                "src" dotfiles-dir))))
+       (org-contrib-dir (expand-file-name
+                         "lisp" (expand-file-name
+                                 "contrib" (expand-file-name
+                                            ".." org-dir))))
+       (load-path (append (list org-dir org-contrib-dir)
+                          (or load-path nil))))
+  ;; load up Org-mode and Org-babel
+  (require 'org-install)
+  (require 'ob-tangle))
+
+(defun paolog-load-init-file (path file)
+  "Load Emacs Lisp source code blocks in the Org-mode FILE.
+This function exports the source code using
+`org-babel-tangle' and then loads the resulting file using
+`load-file'."
+  (let* ((age (lambda (file)
+		(float-time
+		 (time-subtract (current-time)
+				(nth 5 (or (file-attributes (file-truename file))
+					   (file-attributes file)))))))
+	 (base-name (file-name-base file))
+	 (exported-file (expand-file-name (concat base-name ".el") path)))
+    ;; tangle if the org-mode file is newer than the elisp file
+    (unless (and (file-exists-p exported-file)
+		 (> (funcall age file) (funcall age exported-file)))
+      (org-babel-tangle-file file exported-file "emacs-lisp"))
+    (load-file exported-file)
+    (message "Loaded %s" exported-file)))
+
+;; load up all literate org-mode files in this directory
+(mapc (apply-partially 'paolog-load-init-file build-dir) (directory-files dotfiles-dir t "\\.org$"))
+
+;;; init.el ends here
