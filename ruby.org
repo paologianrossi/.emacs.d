@@ -1,0 +1,120 @@
+* Ruby configuration
+
+Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby editor ever.
+
+#+name: ruby-init
+#+begin_src emacs-lisp
+    (i-require 'enh-ruby-mode)
+
+    (add-to-list 'auto-mode-alist '("\\.rb$" . enh-ruby-mode))
+    (add-to-list 'auto-mode-alist '("\\.rake$" . enh-ruby-mode))
+    (add-to-list 'auto-mode-alist '("Rakefile$" . enh-ruby-mode))
+    (add-to-list 'auto-mode-alist '("\\.gemspec$" . enh-ruby-mode))
+    (add-to-list 'auto-mode-alist '("\\.ru$" . enh-ruby-mode))
+    (add-to-list 'auto-mode-alist '("Gemfile$" . enh-ruby-mode))
+
+    (add-to-list 'interpreter-mode-alist '("ruby" . enh-ruby-mode))
+
+    (setq enh-ruby-bounce-deep-indent t)
+    (setq enh-ruby-hanging-brace-indent-level 2)
+
+    (add-to-list 'ac-modes 'enh-ruby-mode)
+#+end_src
+
+** Ruby on Rails
+
+Ruby on Rails gets configured here.
+
+My normal workflow is with ERB templates and Rspec tests (managed later.)  This is what I configure for.
+
+#+name: rails_init
+#+begin_src emacs-lisp
+  (require 'web-init nil 'noerror)
+
+  (add-to-list 'ac-modes 'web-mode)
+
+  (defun* get-closest-gemfile-root (&optional (file "Gemfile"))
+    "Determine the pathname of the first instance of FILE starting from the current directory towards root.
+    This may not do the correct thing in presence of links. If it does not find FILE, then it shall return the name
+    of FILE in the current directory, suitable for creation"
+    (let ((root (expand-file-name "/"))) ; the win32 builds should translate this correctly
+    (loop
+    for d = default-directory then (expand-file-name ".." d)
+    if (file-exists-p (expand-file-name file d))
+    return d
+    if (equal d root)
+    return nil)))
+
+    (require 'compile)
+
+    (defun rspec-compile-file ()
+    (interactive)
+    (compile (format "cd %s;bundle exec rspec %s"
+    (get-closest-gemfile-root)
+    (file-relative-name (buffer-file-name) (get-closest-gemfile-root))
+    ) t))
+
+    (defun rspec-compile-on-line ()
+    (interactive)
+    (compile (format "cd %s;bundle exec rspec %s -l %s"
+    (get-closest-gemfile-root)
+    (file-relative-name (buffer-file-name) (get-closest-gemfile-root))
+    (line-number-at-pos)
+    ) t))
+
+    (add-hook 'enh-ruby-mode-hook
+    (lambda ()
+    (local-set-key (kbd "C-c l") 'rspec-compile-on-line)
+    (local-set-key (kbd "C-c k") 'rspec-compile-file)
+    ))
+
+    (add-hook 'projectile-mode-hook 'projectile-rails-on)
+
+    ;; Rhtml mode should be active for rails
+    (i-require 'rhtml-mode)
+    (sp-with-modes '(rhtml-mode)   (sp-local-pair "<" ">")   (sp-local-pair "<%" "%>"))
+
+    ;; Projectile expanded to rails mode in rails projects
+    (prelude-require-package 'projectile-rails)
+    (add-hook 'projectile-mode-hook 'projectile-rails-on)
+
+
+    (defadvice rspec-compile (around rspec-compile-around)
+      "Use BASH shell for running the specs because of ZSH issues."
+      (let ((shell-file-name "/bin/bash"))
+        ad-do-it))
+
+    (ad-activate 'rspec-compile)
+
+    ;; rspec mode
+    (i-require 'rspec-mode)
+    (eval-after-load 'rspec-mode
+      '(rspec-install-snippets))
+    ;;; ruby.el ends here
+
+
+  (i-require 'smartparens-config 'smartparens)
+  (require 'smartparens-ruby)
+
+  (smartparens-global-mode)
+  (show-smartparens-global-mode t)
+  (sp-with-modes '(rhtml-mode)
+                 (sp-local-pair "<" ">")
+                 (sp-local-pair "<%" "%>"))
+
+
+  ;; Projectile should go in prog-mode
+
+  (i-require 'grizzl)
+  (i-require 'projectile)
+  (i-require 'projectile-rails)
+
+  (projectile-global-mode)
+  (setq projectile-enable-caching t)
+  (setq projectile-completion-system 'grizzl)
+   ;; Press Command-p for fuzzy find in project
+  (global-set-key (kbd "s-p") 'projectile-find-file)
+  ;; Press Command-b for fuzzy switch buffer
+  (global-set-key (kbd "s-b") 'projectile-switch-to-buffer)
+
+#+end_src
