@@ -1,421 +1,796 @@
-** Basics
-- Take away visual cruft
-
-  #+name: big_block_of_cruft
-  #+begin_src emacs-lisp
-            ;;  Prevent the cursor from blinking
-            (blink-cursor-mode 0)
-            (require 'package)
-
-            (custom-set-variables
-             ;; custom-set-variables was added by Custom.
-             ;; If you edit it by hand, you could mess it up, so be careful.
-             ;; Your init file should contain only one such instance.
-             ;; If there is more than one, they won't work right.
-             '(custom-safe-themes (quote ("dd4db38519d2ad7eb9e2f30bc03fba61a7af49a185edfd44e020aa5345e3dca7" default))))
-            (custom-set-faces
-             ;; custom-set-faces was added by Custom.
-             ;; If you edit it by hand, you could mess it up, so be careful.
-             ;; Your init file should contain only one such instance.
-             ;; If there is more than one, they won't work right.
-             )
-
-            ;;  Don't use messages that you don't read
-            (setq initial-scratch-message  "")
-            (setq inhibit-startup-message t)
-
-            ;;  Don't let Emacs hurt your ears
-            (setq visible-bell t)
-
-            ;;  You need to set ` inhibit-startup-echo-area-message ' from the
-            ;;  customization interface:
-            ;;  M-x customize-variable RET inhibit-startup-echo-area-message RET
-            ;;  then enter your username
-            (setq inhibit-startup-echo-area-message  (getenv "USER"))
-
-            (scroll-bar-mode 0)
-            (tool-bar-mode 0)
-            (menu-bar-mode 0)
-
-            (setq mac-command-modifier 'meta)
-            (setq mac-option-modifier 'super)
-             ;;; if on the Mac, right alt should be alt (not meta, super, hyper or whatever)
-            (setq mac-right-option-modifier nil)
-
-            ;; Write backup files to own directory
-            (setq backup-directory-alist
-                  `(("." . ,(expand-file-name
-                             (concat user-emacs-directory "backups")))))
-
-            ;; Make backups of files, even when they're in version control
-            (setq vc-make-backup-files t)
-
-            (require 'saveplace)
-            (setq-default save-place t)
-            (setq save-place-file (expand-file-name ".places" user-emacs-directory))
-
-            (add-to-list 'package-archives
-                         '("marmalade" .
-                           "http://marmalade-repo.org/packages/"))
-            (package-initialize)
-
-            (load-theme 'zenburn)
-
-            (global-set-key [remap goto-line] 'goto-line-with-feedback)
-
-            (defun goto-line-with-feedback ()
-              "Show line numbers temporarily, while prompting for the line number input"
-              (interactive)
-              (unwind-protect
-                  (progn
-                    (linum-mode 1)
-                    (goto-line (read-number "Goto line: ")))
-                (linum-mode -1)))
-
-            ;; diminish
-            (require 'diminish)
-
-            ;; full screen magit-status
-            (require 'magit)
-            (require 'magithub)
-            (require 'magit-find-file)
-
-            (defadvice magit-status (around magit-fullscreen activate)
-              (window-configuration-to-register :magit-fullscreen)
-              ad-do-it
-              (delete-other-windows))
-
-            (global-set-key (kbd "C-x g") 'magit-status)
-
-            (defun magit-quit-session ()
-              "Restores the previous window configuration and kills the magit buffer"
-              (interactive)
-              (kill-buffer)
-              (jump-to-register :magit-fullscreen))
-
-            (define-key magit-status-mode-map (kbd "q") 'magit-quit-session)
-
-            ;; Auto refresh buffers
-            (global-auto-revert-mode 1)
-
-            ;; Also auto refresh dired, but be quiet about it
-            (setq global-auto-revert-non-file-buffers t)
-            (setq auto-revert-verbose nil)
-
-            (defun magit-toggle-whitespace ()
-              (interactive)
-              (if (member "-w" magit-diff-options)
-                  (magit-dont-ignore-whitespace)
-                (magit-ignore-whitespace)))
-
-            (defun magit-ignore-whitespace ()
-              (interactive)
-              (add-to-list 'magit-diff-options "-w")
-              (magit-refresh))
-
-            (defun magit-dont-ignore-whitespace ()
-              (interactive)
-              (setq magit-diff-options (remove "-w" magit-diff-options))
-              (magit-refresh))
-
-            (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
-
-            (require 'dired)
-            (defun comint-delchar-or-eof-or-kill-buffer (arg)
-              (interactive "p")
-              (if (null (get-buffer-process (current-buffer)))
-                  (kill-buffer)
-                (comint-delchar-or-maybe-eof arg)))
-
-            (add-hook 'shell-mode-hook
-                      (lambda ()
-                        (define-key shell-mode-map
-                          (kbd "C-d") 'comint-delchar-or-eof-or-kill-buffer)))
-
-            (defun open-line-below ()
-              (interactive)
-              (end-of-line)
-              (newline)
-              (indent-for-tab-command))
-
-            (defun open-line-above ()
-              (interactive)
-              (beginning-of-line)
-              (newline)
-              (forward-line -1)
-              (indent-for-tab-command))
-
-            (global-set-key (kbd "<C-return>") 'open-line-below)
-            (global-set-key (kbd "<C-S-return>") 'open-line-above)
-
-            (defun move-line-down ()
-              (interactive)
-              (let ((col (current-column)))
-                (save-excursion
-                  (forward-line)
-                  (transpose-lines 1))
-                (forward-line)
-                (move-to-column col)))
-
-            (defun move-line-up ()
-              (interactive)
-              (let ((col (current-column)))
-                (save-excursion
-                  (forward-line)
-                  (transpose-lines -1))
-                (move-to-column col)))
-
-            (global-set-key (kbd "<C-S-down>") 'move-line-down)
-            (global-set-key (kbd "<C-S-up>") 'move-line-up)
-
-
-
-            (defun rename-current-buffer-file ()
-              "Renames current buffer and file it is visiting."
-              (interactive)
-              (let ((name (buffer-name))
-                    (filename (buffer-file-name)))
-                (if (not (and filename (file-exists-p filename)))
-                    (error "Buffer '%s' is not visiting a file!" name)
-                  (let ((new-name (read-file-name "New name: " filename)))
-                    (if (get-buffer new-name)
-                        (error "A buffer named '%s' already exists!" new-name)
-                      (rename-file filename new-name 1)
-                      (rename-buffer new-name)
-                      (set-visited-file-name new-name)
-                      (set-buffer-modified-p nil)
-                      (message "File '%s' successfully renamed to '%s'"
-                               name (file-name-nondirectory new-name)))))))
-
-            (global-set-key (kbd "C-x C-r") 'rename-current-buffer-file)
-
-            (defun delete-current-buffer-file ()
-              "Removes file connected to current buffer and kills buffer."
-              (interactive)
-              (let ((filename (buffer-file-name))
-                    (buffer (current-buffer))
-                    (name (buffer-name)))
-                (if (not (and filename (file-exists-p filename)))
-                    (ido-kill-buffer)
-                  (when (yes-or-no-p "Are you sure you want to remove this file? ")
-                    (delete-file filename)
-                    (kill-buffer buffer)
-                    (message "File '%s' successfully removed" filename)))))
-
-            (global-set-key (kbd "C-x C-k") 'delete-current-buffer-file)
-
-            ;; Make dired less verbose
-            (require 'dired-details)
-            (setq-default dired-details-hidden-string "--- ")
-            (dired-details-install)
-
-            ;; Use ido everywhere
-            (require 'ido)
-            (ido-mode 1)
-            (require 'ido-ubiquitous)
-            (ido-ubiquitous-mode 1)
-
-            ;; Fix ido-ubiquitous for newer packages
-            (defmacro ido-ubiquitous-use-new-completing-read (cmd package)
-              `(eval-after-load ,package
-                 '(defadvice ,cmd (around ido-ubiquitous-new activate)
-                    (let ((ido-ubiquitous-enable-compatibility nil))
-                      ad-do-it))))
-
-            (ido-ubiquitous-use-new-completing-read webjump 'webjump)
-            (ido-ubiquitous-use-new-completing-read yas/expand 'yasnippet)
-            (ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
-
-
-            (global-set-key (kbd "M-j")
-                            (lambda ()
-                              (interactive)
-                              (join-line -1)))
-
-            (defun dired-back-to-top ()
-              (interactive)
-              (beginning-of-buffer)
-              (dired-next-line 4))
-
-            (define-key dired-mode-map
-              (vector 'remap 'beginning-of-buffer) 'dired-back-to-top)
-
-            (define-key dired-mode-map
-              (kbd "e")
-              (lambda () (interactive)
-                (dired-do-shell-command "open" nil (dired-get-marked-files))))
-
-            (defun dired-jump-to-bottom ()
-              (interactive)
-              (end-of-buffer)
-              (dired-next-line -1))
-
-            (define-key dired-mode-map
-              (vector 'remap 'end-of-buffer) 'dired-jump-to-bottom)
-
-            (add-hook 'ido-setup-hook
-                      (lambda ()
-                        ;; Go straight home
-                        (define-key ido-file-completion-map
-                          (kbd "~")
-                          (lambda ()
-                            (interactive)
-                            (if (looking-back "/~")
-                                (insert "/")
-                              (call-interactively 'self-insert-command))))))
-
-            (defun magit-just-amend ()
-              (interactive)
-              (save-window-excursion
-                (magit-with-refresh
-                  (shell-command "git --no-pager commit --amend --reuse-message=HEAD"))))
-
-            (eval-after-load "magit"
-              '(define-key magit-status-mode-map (kbd "C-c C-a") 'magit-just-amend))
-
-
-            ;; (require 'smart-mode-line)
-            ;; (setq sml/theme 'respectful)
-            ;; (sml/setup)
-            (setq indicate-empty-lines t)
-
-            ;; From:
-            ;; http://emacs-fu.blogspot.co.uk/2011/01/setting-frame-title.html
-            (setq frame-title-format
-                  '((:eval (if (buffer-file-name)
-                               (abbreviate-file-name (buffer-file-name))
-                             "%b"))))
-
-            ;; I got sick of typing "yes"
-            (defalias 'yes-or-no-p 'y-or-n-p)
-
-            ;; I prefer spaces over tabs
-            (setq-default
-             indent-tabs-mode nil
-             ;; ... and I prefer 4-space indents
-             tab-width 4)
-
-            ;; UTF-8 please!
-            (set-terminal-coding-system 'utf-8)
-            (set-keyboard-coding-system 'utf-8)
-            (prefer-coding-system 'utf-8)
-
-            (defadvice kill-ring-save (before slick-copy activate compile) "When called
-             interactively with no active region, copy a single line instead."
-              (interactive (if mark-active (list (region-beginning) (region-end)) (message
-                                                                                   "Copied line") (list (line-beginning-position) (line-beginning-position
-                                                                                                                                   2)))))
-
-            (defadvice kill-region (before slick-cut activate compile)
-              "When called interactively with no active region, kill a single line instead."
-              (interactive
-               (if mark-active (list (region-beginning) (region-end))
-                 (list (line-beginning-position)
-                       (line-beginning-position 2)))))
-
-            (defun djcb-find-file-as-root ()
-              "Like `ido-find-file, but automatically edit the file with
-             root-privileges (using tramp/sudo), if the file is not writable by
-             user."
-              (interactive)
-              (let ((file (ido-read-file-name "Edit as root: ")))
-                (unless (file-writable-p file)
-                  (setq file (concat "/sudo:root@localhost:" file)))
-                (find-file file)))
-            ;; or some other keybinding...
-            (global-set-key (kbd "C-x F") 'djcb-find-file-as-root)
-
-            ;; nuke trailing whitespace when writing to a file
-            (add-hook 'write-file-hooks 'delete-trailing-whitespace)
-
-            ;; always add a trailing newline - it's POSIX
-            (setq require-final-newline t)
-
-            ;; http://emacs-fu.blogspot.hk/2009/11/copying-lines-without-selecting-them.html
-            (defadvice kill-ring-save (before slick-copy activate compile)
-              "When called interactively with no active region, copy a single line instead."
-              (interactive
-               (if mark-active (list (region-beginning) (region-end))
-                 (message "Copied line")
-                 (list (line-beginning-position)
-                       (line-beginning-position
-                        2)))))
-
-            (defadvice kill-region (before slick-cut activate compile)
-              "When called interactively with no active region, kill a single line instead."
-              (interactive
-               (if mark-active (list (region-beginning) (region-end))
-                 (list (line-beginning-position)
-                       (line-beginning-position 2)))))
-
-            (defun cycle-fullscreen ()
-              (interactive)
-              (let ((flow '((nil . 'maximized) (maximized . 'fullboth)
-                            (fullboth . 'fullwidth) (fullwidth . 'fullheight)
-                            (fullheight . nil))) (current (frame-parameter nil 'fullscreen)))
-                (set-frame-parameter nil 'fullscreen (car (cdr (assoc-default current flow nil nil))))
-                ))
-
-            (global-set-key (kbd "<s-return>") 'cycle-fullscreen)
-
-            (defadvice move-beginning-of-line (around smarter-bol activate)
-              ;; Move to requested line if needed.
-              (let ((arg (or (ad-get-arg 0) 1)))
-                (when (/= arg 1)
-                  (forward-line (1- arg))))
-              ;; Move to indentation on first call, then to actual BOL on second.
-              (let ((pos (point)))
-                (back-to-indentation)
-                (when (= pos (point))
-                  ad-do-it)))
-
-            ;; enable hl-line-mode for prog-mode, but only if we're not on the terminal
-            (if window-system
-                (add-hook 'prog-mode-hook (lambda () (interactive) (hl-line-mode 1)))
-              )
-
-            ;; I want to use narrowing
-            (put 'narrow-to-defun 'disabled nil)
-            (put 'narrow-to-page 'disabled nil)
-            (put 'narrow-to-region 'disabled nil)
-
-            ;; I want to use scrolling
-            (put 'scroll-left 'disabled nil)
-
-            (setq minibuffer-prompt-properties (add-to-list 'minibuffer-prompt-properties 'minibuffer-avoid-prompt))
-            (setq minibuffer-prompt-properties (add-to-list 'minibuffer-prompt-properties 'point-entered))
-
-            ;; Activate occur easily inside isearch
-            (define-key isearch-mode-map (kbd "C-o") 'isearch-occur)
-
-            (global-set-key (kbd "C-x C-b") 'ibuffer)
-
-            ;; Use hippie-expand instead of dabbrev
-            (global-set-key (kbd "M-/") 'hippie-expand)
-
-            (global-set-key (kbd "C-h C-f") 'find-function)
-
-            (global-set-key (kbd "M-p") 'magit-find-file-completing-read)
-
-            ;; mnemonic keybindings for window splitting (copies my tmux bindings)
-            (global-set-key (kbd "C-x |") 'split-window-right)
-            (global-set-key (kbd "C-x -") 'split-window-below)
-
-            ;; terminal-related bindings
-            (global-set-key (kbd "C-c t") 'bw-open-term)
-            (global-set-key (kbd "C-c C-t t") 'ansi-term)
-            (global-set-key (kbd "C-c C-t e") 'eshell)
-
-            ;; (use-package ace-jump-mode
-            ;;              :bind ("C-c SPC" . ace-jump-mode))
-
-        ;; define function to shutdown emacs server instance
-        (defun server-shutdown ()
-          "Save buffers, Quit, and Shutdown (kill) server"
-          (interactive)
-          (save-some-buffers)
-          (kill-emacs)
-          )
-
-    (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-  #+end_src
+* Introduction
+
+Welcome to my emacs configuration.
+
+This should set up emacs as I like it anywhere I need it.
+
+The idea for this configuration (and some of the defuns) are blatantly stolen or adapted from the [[https://github.com/eschulte/emacs24-starter-kit/][Emacs Starter Kit]].  The main reason why I do this myself instead of using ESK itself is I want to work a bit with emacs lisp and I want to set every thing precisely as I mean it.  You should probably use that, anyway.
+
+** Caveats
+
+- Emacs 24.3 is required.
+
+- If on the Mac, use a Cocoa version.  This is mostly for keyboard
+  issues on non-US keyboards, but also fullscreen and more works
+  better on Cocoa.  I just compile emacs with NS, but you could also
+  try out [[http://emacsformacosx.com/][Emacs for MacOS X]].
+
+* Implementation
+** Defining where to look for things
+
+- Emacs uses the `load-path` variable to hold a list of paths where to look for libraries.  We set this to hold recursively our `dotfiles-dir` to be able to load our own configuration; and `elisp-dir`, to be able to load extensions we downloaded not using [[http://www.emacswiki.org/emacs/ELPA][ELPA]].  We also want to be able to load packages installed through ELPA, but this is taken care of [[*ELPA][elsewhere]].
+
+#+name: load-paths
+#+begin_src emacs-lisp
+  (dolist (dir '(dotfiles-dir elisp-dir))
+    (let ((dirval (eval dir)))
+      (add-to-list 'load-path dirval)
+    (when (file-exists-p dirval)
+      (let ((default-directory dirval))
+        (normal-top-level-add-subdirs-to-load-path)))))
+#+end_src
+
+- Various packages need to generate files not for human consumption.  We store them in their own directory, `var-dir` to avoid cluttering our configs.
+
+#+name: var-dir-inhabitants
+#+begin_src emacs-lisp
+  (setq autoload-file (expand-file-name "loaddefs.el" var-dir))
+  (setq custom-file (expand-file-name "custom.el" var-dir))
+  (setq abbrev-file-name (expand-file-name "abbrev_defs" var-dir))
+  (setq bookmark-default-file (expand-file-name "bookmarks" var-dir))
+#+end_src
+
+** Personal info
+- Load what is in `personal` if it's there.
+- Right now it just loads this single file...
+
+#+name: personal-info
+#+begin_src emacs-lisp
+  (if (file-exists-p private-dir)
+    (dolist (file (directory-files private-dir t "\.el$"))
+      (load-init-file file)))
+#+end_src
+
+** Server
+- Emacs server and client are neat.  You can open many emacs windows like instances, but never actually have to reload it.  This makes for a snappy experience.  We usually start the server from the shell, by starting emacs with the following line:
+
+#+name: ec-script
+#+begin_src sh
+  emacsclient -a "" -n -c "$@"
+#+end_src
+
+- When we close emacs (`C-x C-c`), only the terminal is actually killed.  If you want to shutdown everything, including the server, use the following command:
+
+#+name: server-shutdown
+#+begin_src emacs-lisp
+(defun server-shutdown ()
+    "Save buffers, Quit, and Shutdown (kill) server"
+    (interactive)
+    (save-some-buffers)
+    (kill-emacs))
+#+end_src
+
+** ELPA
+- ELPA packages is the best thing after sliced emacs.  However we want all good repos set up.
+
+#+Name: package-setup
+#+begin_src emacs-lisp
+      (require 'package)
+
+      (setq package-archives
+            '(("gnu"         . "http://elpa.gnu.org/packages/")
+              ("org"         . "http://orgmode.org/elpa/")
+              ("melpa"       . "http://melpa.milkbox.net/packages/")
+              ("marmalade"   . "http://marmalade-repo.org/packages/")))
+
+      (package-initialize)
+#+end_src
+
+- Small nuisance with ELPA is it does not know by default what we want to install.  Let's make it easier to do this: we define function `i-require`.  This works mostly as `require`, except it will try to install the package if it cannot be found.
+#+name: i-require
+#+begin_src emacs-lisp
+  (defun package-loadable-p (package)
+    "Check if PACKAGE is loadable from a directory in `load-path'."
+    (let ((load-file (concat (symbol-name package) ".el")))
+      (catch 'file-found
+        (dolist (dir load-path)
+          (let ((path (expand-file-name load-file dir)))
+            (when (file-exists-p path)
+              (throw 'file-found path)))))))
+
+  (defun install-packages-if-needed (&rest packages)
+    "Install PACKAGES using ELPA if they are not loadable or installed locally."
+    (when packages
+      (unless package-archive-contents
+        (package-refresh-contents))
+      (dolist (package packages)
+        (unless (or (package-loadable-p package)
+                    (package-installed-p package))
+          (package-install package)))))
+
+  (defalias 'install-package-if-needed 'install-packages-if-needed)
+
+  (defun i-require (feature &optional package)
+    "Require FEATURE.  If needed, try first to install PACKAGE from ELPA.
+  If PACKAGE is not specified, FEATURE is used also as the package name."
+    (setq package (or package feature))
+    (install-packages-if-needed package)
+    (require feature))
+#+end_src
+
+** Visuals
+
+- My favourite theme, so far, is `ample-zen`.  It comes with ELPA.  We hardcode the safe-theme string here, though I don't like it so much.
+
+#+name: theme
+#+begin_src emacs-lisp
+  (setq custom-safe-themes (quote ("2b5aa66b7d5be41b18cc67f3286ae664134b95ccc4a86c9339c886dfd736132d" default)))
+  (install-package-if-needed 'ample-zen-theme)
+  (load-theme 'ample-zen)
+#+end_src
+
+- Let's remove useless distractions: make cursor a solid, non-blinking block and remove mouse interfaces.
+
+#+name: remove-visual-clutter
+#+begin_src emacs-lisp
+  (blink-cursor-mode 0)
+  (scroll-bar-mode 0)
+  (tool-bar-mode 0)
+#+end_src
+
+- Remove also the menu, but not on the Mac:  it's going to be there anyway, so it might as well be full-fledged.
+#+name: menu-bar
+#+begin_src emacs-lisp
+  (if (or (string= window-system "ns") (string= window-system "mac"))
+      (menu-bar-mode 1)
+    (menu-bar-mode 0))
+#+end_src
+
+- Startup messages are another source of distraction.  Even though they happen just once (at startup, duh), we remove them because we can.
+
+#+name: startup-messages-off
+#+begin_src emacs-lisp
+  (setq initial-scratch-message  "")
+  (setq inhibit-startup-message t)
+#+end_src
+
+You also want to set inhibit-startup-echo-area-message to your username.  This needs to be done in Customize to work.
+
+- If we have a title bar, set the frame title to the current file (from [[http://emacs-fu.blogspot.co.uk/2011/01/setting-frame-title.html]])
+#+name: frame-title
+#+begin_src emacs-lisp
+   (setq frame-title-format
+         '((:eval (if (buffer-file-name)
+                      (abbreviate-file-name (buffer-file-name))
+                    "%b"))))
+#+end_src
+
+- Use the left fringe to show where the file actually ends
+#+name: empty-lines
+#+begin_src emacs-lisp
+  (setq indicate-empty-lines t)
+#+end_src
+
+- When editing in the minibuffer, don't walk on the prompt (from [[http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html]])
+#+name: minibuffer-readonly-prompt
+#+begin_src emacs-lisp
+  (setq minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
+#+end_src
+
+- Powerline is a great mode-line customization.  Use it.
+#+name: powerline
+#+begin_src emacs-lisp
+  (i-require 'powerline)
+  (powerline-center-theme)
+#+end_src
+
+** Fullscreen
+- Cycle to "fullscreen" states without the mouse.  Loop in this order:
+  - normal
+  - maximized
+  - fullboth (fullscreen-like)
+  - fullwidth
+  - fullheight
+
+#+name: fullscreen
+#+begin_src emacs-lisp
+  (defun cycle-fullscreen ()
+    (interactive)
+    (let ((flow '((nil . 'maximized) (maximized . 'fullboth)
+                  (fullboth . 'fullwidth) (fullwidth . 'fullheight)
+                  (fullheight . nil))) (current (frame-parameter nil 'fullscreen)))
+      (set-frame-parameter nil 'fullscreen (car (cdr (assoc-default current flow nil nil))))
+      ))
+
+  (global-set-key (kbd "<s-return>") 'cycle-fullscreen)
+
+#+end_src
+
+** Bell
+- The bell is annoying.  If it dings, it bothers the world and me.  If it doesn't (low volume, headphones in, whatever), it's useless.  Here we make it visual by flipping the background quickly.
+#+name: no-ding
+#+begin_src emacs-lisp
+  (setq visible-bell nil)
+  (setq ring-bell-function (apply-partially 'ding-dong "#002200"))
+
+  (defun ding-dong (color)
+    (let ((original (face-background 'default)))
+      (set-face-background 'default color)
+      (set-face-background 'default original)))
+#+end_src
+
+** Backup files
+
+- Emacs backs everything up.  By default, backup files are those annoying suffixed-in-~ files you find in the original file's directory.  We still want all backups, as they saved our lives more than once, but stash them away in their own directory.
+#+name: backup-files
+#+begin_src emacs-lisp
+
+  ;; Write backup files to own directory
+  (setq backup-directory-alist
+        `(("." . ,(expand-file-name
+                   (concat user-emacs-directory "backups")))))
+
+#+end_src
+
+- In fact, we like backups so much, we want them even for files under version control.
+#+name: vc-backup
+#+begin_src emacs-lisp
+  (setq vc-make-backup-files t)
+#+end_src
+
+- Auto-saves are a totally different beast.  They're even more useful than backups when it hits the fan.  Since they are not to be used by humans, we store them in `var-dir`.
+
+#+name: auto-save-path
+#+begin_src emacs-lisp
+  (setq auto-save-list-file-prefix "~/.emacs.d/var/auto-save-list/.saves-")
+#+end_src
+
+** Save places
+- Remember where we left off for each file.  When we reopen the file, bring us to the right place.
+#+name: saveplace
+#+begin_src emacs-lisp
+  (require 'saveplace)
+  (setq-default save-place t)
+  (setq save-place-file (expand-file-name "saved-places" var-dir))
+#+end_src
+
+** Auto-refreshing
+- If a file changes on disk, refresh it in emacs too.
+#+name: auto-refresh
+#+begin_src emacs-lisp
+  (global-auto-revert-mode 1)
+#+end_src
+
+
+- Also auto refresh dired, but be quiet about it
+ #+name: auto-refresh-dired
+#+begin_src emacs-lisp
+ (setq global-auto-revert-non-file-buffers t)
+  (setq auto-revert-verbose nil)
+#+end_src
+
+** Keybindings
+#+name: keybindings
+#+begin_src emacs-lisp
+  ;; Activate occur easily inside isearch
+  (define-key isearch-mode-map (kbd "C-o") 'isearch-occur)
+
+  (global-set-key (kbd "C-x C-b") 'ibuffer)
+
+  ;; Use hippie-expand instead of dabbrev
+  (global-set-key (kbd "M-/") 'hippie-expand)
+
+  (global-set-key (kbd "C-h C-f") 'find-function)
+
+  (global-set-key (kbd "M-p") 'magit-find-file-completing-read)
+
+  ;; terminal-related bindings
+  (global-set-key (kbd "s-t") 'do-open-term)
+  (global-set-key (kbd "s-T") 'multi-term)
+
+  ;; Really quit emacs
+  (global-set-key (kbd "C-x r q") 'server-shutdown)
+#+end_src
+
+** Window management
+
+#+name: windows-up
+#+begin_src emacs-lisp
+  (defun detach-window (&optional window)
+    (interactive)
+    (set-buffer (window-buffer window))
+    (let ((old-frame (selected-frame))
+          (new-frame (make-frame)))
+      (select-frame old-frame)
+      (delete-window window)
+      (select-frame new-frame)
+      ))
+  (global-set-key (kbd "M-`") 'other-frame)
+  (define-prefix-command 'window-management-map)
+  (global-set-key (kbd "s-w") 'window-management-map)
+  (define-key window-management-map (kbd "s-w") 'delete-frame)
+  (define-key window-management-map (kbd "s-n") 'make-frame-command)
+  (define-key window-management-map (kbd "s-d") 'detach-window)
+  (define-key window-management-map (kbd "w") 'delete-window)
+  (define-key window-management-map (kbd "-") 'split-window-below)
+  (define-key window-management-map (kbd "|") 'split-window-right)
+  (define-key window-management-map (kbd "W") 'delete-other-windows)
+  (define-key window-management-map (kbd "s-W") 'delete-other-frames)
+  (define-key window-management-map (kbd "+") 'balance-windows)
+  (define-key window-management-map (kbd "f") 'find-file-other-window)
+  (define-key window-management-map (kbd "F") 'find-file-other-frame)
+#+end_src
+
+#+name: window-numbers
+#+begin_src emacs-lisp
+(install-packages-if-needed 'window-number)
+(require 'window-number)                ; this is for some reason required
+(window-number-mode 1)
+(window-number-meta-mode 1)
+#+end_src
+
+#+name: winner
+#+begin_src emacs-lisp
+  (winner-mode 1)
+#+end_src
+
+** Terminal
+#+name: term
+#+begin_src emacs-lisp
+  (install-packages-if-needed 'multi-term)
+
+  (defun do-open-term (&optional arg)
+    "Opens an ansi-term with value of $TERM - force new ansi-term
+  with prefix"
+    (interactive "p")
+    (if (or (not (get-buffer "*ansi-term*")) (= arg 4))
+        (ansi-term (getenv "SHELL"))
+      (switch-to-buffer "*ansi-term*")))
+
+  (defun comint-delchar-or-eof-or-kill-buffer (arg)
+    (interactive "p")
+    (if (null (get-buffer-process (current-buffer)))
+        (kill-buffer)
+      (comint-delchar-or-maybe-eof arg)))
+
+  (defun term-my-hook ()
+      (interactive)
+      (make-local-variable 'mouse-yank-at-point)
+      (make-local-variable 'transient-mark-mode)
+      (auto-fill-mode -1)
+      (compilation-shell-minor-mode t)
+      (setq mouse-yank-at-point t
+            term-scroll-to-bottom-on-output nil
+            term-scroll-show-maximum-output nil
+            term-buffer-maximum-size 1024
+            transient-mark-mode nil
+            tab-width 8))
+
+    (add-hook 'term-mode-hook 'term-my-hook)
+
+    (defun kill-buffer-when-shell-command-exit ()
+      "Close current buffer when `shell-command' exit."
+      (let ((process (ignore-errors (get-buffer-process (current-buffer)))))
+        (when process
+          (set-process-sentinel process
+                                (lambda (proc change)
+                                  (when (string-match "\\(finished\\|exited\\Debugger\\)" change)
+                                    (kill-buffer (process-buffer proc)))))))
+      )
+
+    (add-hook 'term-mode-hook 'kill-buffer-when-shell-command-exit)
+
+#+end_src
+
+** IDO
+#+name: ido
+#+begin_src emacs-lisp
+  (require 'ido)
+  (ido-mode 1)
+  (install-packages-if-needed 'ido-ubiquitous)
+  (ido-ubiquitous-mode 1)
+
+  ;; Fix ido-ubiquitous for newer packages
+  (defmacro ido-ubiquitous-use-new-completing-read (cmd package)
+    `(eval-after-load ,package
+       '(defadvice ,cmd (around ido-ubiquitous-new activate)
+          (let ((ido-ubiquitous-enable-compatibility nil))
+            ad-do-it))))
+
+  (ido-ubiquitous-use-new-completing-read webjump 'webjump)
+  (ido-ubiquitous-use-new-completing-read yas/expand 'yasnippet)
+  (ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
+
+  (add-hook 'ido-setup-hook
+            (lambda ()
+              ;; Go straight home
+              (define-key ido-file-completion-map
+                (kbd "~")
+                (lambda ()
+                  (interactive)
+                  (if (looking-back "/~")
+                      (insert "/")
+                    (call-interactively 'self-insert-command))))))
+
+  (defun djcb-find-file-as-root ()
+    "Like `ido-find-file, but automatically edit the file with
+           root-privileges (using tramp/sudo), if the file is not writable by
+           user."
+    (interactive)
+    (let ((file (ido-read-file-name "Edit as root: ")))
+      (unless (file-writable-p file)
+        (setq file (concat "/sudo:root@localhost:" file)))
+      (find-file file)))
+  ;; or some other keybinding...
+  (global-set-key (kbd "C-x F") 'djcb-find-file-as-root)
+
+#+end_src
+
+** Editing
+*** Better goto-line
+#+name: goto-line-plus
+#+begin_src emacs-lisp
+  (global-set-key [remap goto-line] 'goto-line-with-feedback)
+
+  (defun goto-line-with-feedback ()
+    "Show line numbers temporarily, while prompting for the line number input"
+    (interactive)
+    (unwind-protect
+        (progn
+          (linum-mode 1)
+          (goto-line (read-number "Goto line: ")))
+      (linum-mode -1)))
+#+end_src
+
+*** Lines
+#+name: line-edit
+#+begin_src emacs-lisp
+  (defun open-line-below ()
+    (interactive)
+    (end-of-line)
+    (newline)
+    (indent-for-tab-command))
+
+  (defun open-line-above ()
+    (interactive)
+    (beginning-of-line)
+    (newline)
+    (forward-line -1)
+    (indent-for-tab-command))
+
+  (global-set-key (kbd "<C-return>") 'open-line-below)
+  (global-set-key (kbd "<C-S-return>") 'open-line-above)
+
+  (defun move-line-down ()
+    (interactive)
+    (let ((col (current-column)))
+      (save-excursion
+        (forward-line)
+        (transpose-lines 1))
+      (forward-line)
+      (move-to-column col)))
+
+  (defun move-line-up ()
+    (interactive)
+    (let ((col (current-column)))
+      (save-excursion
+        (forward-line)
+        (transpose-lines -1))
+      (move-to-column col)))
+
+  (global-set-key (kbd "<C-S-down>") 'move-line-down)
+  (global-set-key (kbd "<C-S-up>") 'move-line-up)
+
+  (global-set-key (kbd "M-j")
+                  (lambda ()
+                    (interactive)
+                    (join-line -1)))
+#+end_src
+
+*** Buffers
+#+name: buffers
+#+begin_src emacs-lisp
+  (defun rename-current-buffer-file ()
+    "Renames current buffer and file it is visiting."
+    (interactive)
+    (let ((name (buffer-name))
+          (filename (buffer-file-name)))
+      (if (not (and filename (file-exists-p filename)))
+          (error "Buffer '%s' is not visiting a file!" name)
+        (let ((new-name (read-file-name "New name: " filename)))
+          (if (get-buffer new-name)
+              (error "A buffer named '%s' already exists!" new-name)
+            (rename-file filename new-name 1)
+            (rename-buffer new-name)
+            (set-visited-file-name new-name)
+            (set-buffer-modified-p nil)
+            (message "File '%s' successfully renamed to '%s'"
+                     name (file-name-nondirectory new-name)))))))
+
+  (global-set-key (kbd "C-x C-r") 'rename-current-buffer-file)
+
+  (defun delete-current-buffer-file ()
+    "Removes file connected to current buffer and kills buffer."
+    (interactive)
+    (let ((filename (buffer-file-name))
+          (buffer (current-buffer))
+          (name (buffer-name)))
+      (if (not (and filename (file-exists-p filename)))
+          (ido-kill-buffer)
+        (when (yes-or-no-p "Are you sure you want to remove this file? ")
+          (delete-file filename)
+          (kill-buffer buffer)
+          (message "File '%s' successfully removed" filename)))))
+
+  (global-set-key (kbd "C-x C-k") 'delete-current-buffer-file)
+
+#+end_src
+
+*** Encoding
+
+UTF-8 please!
+
+#+name: utf8
+#+begin_src emacs-lisp
+  (set-terminal-coding-system 'utf-8)
+  (set-keyboard-coding-system 'utf-8)
+  (prefer-coding-system 'utf-8)
+#+end_src
+
+*** Misc
+#+name: misc-edit
+#+begin_src emacs-lisp
+  ;; I got sick of typing "yes"
+    (defalias 'yes-or-no-p 'y-or-n-p)
+
+    ;; I prefer spaces over tabs
+    (setq-default
+     indent-tabs-mode nil
+     ;; ... and I prefer 4-space indents
+     tab-width 4)
+
+    ;; http://emacs-fu.blogspot.hk/2009/11/copying-lines-without-selecting-them.html
+    (defadvice kill-ring-save (before slick-copy activate compile) "When called
+               interactively with no active region, copy a single line instead."
+      (interactive (if mark-active (list (region-beginning) (region-end)) (message
+                                                                           "Copied line") (list (line-beginning-position) (line-beginning-position
+                                                                                                                           2)))))
+
+    (defadvice kill-region (before slick-cut activate compile)
+      "When called interactively with no active region, kill a single line instead."
+      (interactive
+       (if mark-active (list (region-beginning) (region-end))
+         (list (line-beginning-position)
+               (line-beginning-position 2)))))
+
+    ;; nuke trailing whitespace when writing to a file
+    (add-hook 'write-file-hooks 'delete-trailing-whitespace)
+
+    ;; always add a trailing newline - it's POSIX
+    (setq require-final-newline t)
+
+    (defadvice move-beginning-of-line (around smarter-bol activate)
+      ;; Move to requested line if needed.
+      (let ((arg (or (ad-get-arg 0) 1)))
+        (when (/= arg 1)
+          (forward-line (1- arg))))
+      ;; Move to indentation on first call, then to actual BOL on second.
+      (let ((pos (point)))
+        (back-to-indentation)
+        (when (= pos (point))
+          ad-do-it)))
+
+    ;; I want to use narrowing
+    (put 'narrow-to-defun 'disabled nil)
+    (put 'narrow-to-page 'disabled nil)
+    (put 'narrow-to-region 'disabled nil)
+
+    ;; I find scrolling useful sometimes
+    (put 'scroll-left 'disabled nil)
+
+#+end_src
+
+** Dired
+#+name: dired
+#+begin_src emacs-lisp
+  (require 'dired)
+
+  ;; figure out if ls know --dired or not
+  (setq dired-use-ls-dired 'unspecified)
+  ;; Make dired less verbose
+  (install-packages-if-needed 'dired-details)
+  (require 'dired-details)
+  (setq-default dired-details-hidden-string "--- ")
+  (dired-details-install)
+
+  (defun dired-back-to-top ()
+    (interactive)
+    (beginning-of-buffer)
+    (dired-next-line 4))
+
+  (define-key dired-mode-map
+    (vector 'remap 'beginning-of-buffer) 'dired-back-to-top)
+
+  (define-key dired-mode-map
+    (kbd "e")
+    (lambda () (interactive)
+      (dired-do-shell-command "open" nil (dired-get-marked-files))))
+
+  (defun dired-jump-to-bottom ()
+    (interactive)
+    (end-of-buffer)
+    (dired-next-line -1))
+
+  (define-key dired-mode-map
+    (vector 'remap 'end-of-buffer) 'dired-jump-to-bottom)
+
+#+end_src
+
+
+** Shell
+#+name: shell
+#+begin_src emacs-lisp
+  (add-hook 'shell-mode-hook
+            (lambda ()
+              (define-key shell-mode-map
+                (kbd "C-d") 'comint-delchar-or-eof-or-kill-buffer)))
+#+end_src
+
+
+** MacOS X specific configuration
+If we are on a mac, we have some specific configuration.
+*** Setup modifiers
+We want CMD Meta, left-option (left-alt) Super, right-option (right-alt) Alt.
+
+#+name: mac-modifiers
+#+begin_src emacs-lisp
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'super)
+  ;;; if on the Mac, right alt should be alt (not meta, super, hyper or whatever)
+  (setq mac-right-option-modifier nil)
+#+end_src
+
+
+** Magit
+Magit is the best way to manage git repositories from emacs.
+
+#+name: magit
+#+begin_src emacs-lisp
+  (install-packages-if-needed 'magit)
+  (install-packages-if-needed 'magit-find-file)
+
+  (require 'magit)
+  (require 'magit-find-file)
+
+  (defadvice magit-status (around magit-fullscreen activate)
+    (window-configuration-to-register :magit-fullscreen)
+    ad-do-it
+    (delete-other-windows))
+
+  (global-set-key (kbd "C-x g") 'magit-status)
+
+  (defun magit-quit-session ()
+    "Restores the previous window configuration and kills the magit buffer"
+    (interactive)
+    (kill-buffer)
+    (jump-to-register :magit-fullscreen))
+
+  (defun magit-toggle-whitespace ()
+    (interactive)
+    (if (member "-w" magit-diff-options)
+        (magit-dont-ignore-whitespace)
+      (magit-ignore-whitespace)))
+
+  (defun magit-ignore-whitespace ()
+    (interactive)
+    (add-to-list 'magit-diff-options "-w")
+    (magit-refresh))
+
+  (defun magit-dont-ignore-whitespace ()
+    (interactive)
+    (setq magit-diff-options (remove "-w" magit-diff-options))
+    (magit-refresh))
+
+  (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
+
+  (defun magit-just-amend ()
+    (interactive)
+    (save-window-excursion
+      (magit-with-refresh
+        (shell-command "git --no-pager commit --amend --reuse-message=HEAD"))))
+
+  (eval-after-load "magit"
+    '(define-key magit-status-mode-map (kbd "C-c C-a") 'magit-just-amend))
+
+#+end_src
+** Autocomplete
+#+name: autocomplete
+#+begin_src emacs-lisp
+
+  (i-require 'auto-complete)
+  (require 'auto-complete-config)
+  (setq ac-ignore-case nil)
+  (setq ac-comphist-file (expand-file-name "ac-comphist.dat" var-dir))
+  (setq-default ac-sources '(ac-source-abbrev
+                             ac-source-dictionary
+                             ac-source-words-in-same-mode-buffers))
+  (ac-config-default)
+  (global-auto-complete-mode t)
+#+end_src
+** Tramp
+Tramp is magic.
+
+#+name: tramp
+#+begin_src emacs-lisp
+  (setq tramp-persistency-file-name "/Users/paolog/.emacs.d/var/tramp")
+  (setq tramp-auto-save-directory (expand-file-name "tramp-autosave/" var-dir))
+#+end_src
+
+** Better commands
+Here we configure Helm and Smex.
+
+#+name: helm
+#+begin_src emacs-lisp
+  (i-require 'helm-config 'helm)
+
+  (i-require 'smex)
+  (setq smex-save-file (expand-file-name ".smex-items" var-dir))
+  (global-set-key (kbd "M-x") 'smex)
+  (global-set-key (kbd "M-X") 'smex-major-mode-commands)
+
+  ;; This is your old M-x.
+  (global-set-key (kbd "C-c C-c M-x") 'execute-extended-command)
+#+end_src
+
+** FlyMake
+#+name: flymake
+#+begin_src emacs-lisp
+    (i-require 'flymake)
+    (i-require 'rfringe)
+    (global-flycheck-mode)
+  ;; Python specific, actually
+    (i-require 'flymake-python-pyflakes)
+    (setq flymake-python-pyflakes-executable (expand-file-name "python-env/bin/flake8" vendor-dir))
+#+end_src
+
+** Org-mode
+#+name: setup_org_for_init
+#+begin_src emacs-lisp
+  (load-init-file "paolog-org")
+#+end_src
+** Python-mode
+#+name: python
+#+begin_src emacs-lisp
+(load-init-file "python")
+#+end_src
+** Ruby-mode
+#+name: python
+#+begin_src emacs-lisp
+(load-init-file "ruby")
+#+end_src
+** Bookmarks
+#+name: bookmarks
+#+begin_src emacs-lisp
+  (require 'bookmark)
+  (i-require 'bookmark+)
+
+   (defun ido-bookmark-jump (bname)
+    "*Switch to bookmark interactively using `ido'."
+    (interactive (list (ido-completing-read "Bookmark: " (bookmark-all-names) nil t)))
+    (bookmark-jump bname))
+  (global-set-key (kbd "s-b") 'bookmark-set)
+  (global-set-key (kbd "s-B") 'ido-bookmark-jump)
+#+end_src
+** Email
+#+name: email
+#+begin_src emacs-lisp
+(load-init-file "email")
+#+end_src
+
+** Customize
+ Last thing is load customizations.  This goes last to allow user overridings through customize.
+
+#+name: custom-file
+#+begin_src emacs-lisp
+  (if (file-exists-p custom-file) (load custom-file))
+#+end_src
