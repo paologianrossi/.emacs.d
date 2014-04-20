@@ -1,15 +1,37 @@
 ;;; init.el --- Where all the magic begins
 ;;
-;; This file loads Org-mode and then loads the rest of our Emacs initialization from Emacs lisp
+;;; Commentary:
+;; This file loads Org-mode and then loads the rest of our Emacs initialization from Emacs Lisp
 ;; embedded in literate Org-mode files.
 
 ;; Load up Org Mode and (now included) Org Babel for elisp embedded in Org Mode files
+
+;;; Code:
 
 (defconst dotfiles-dir (file-name-directory (or (buffer-file-name) load-file-name))
   "The root directory of init files")
 
 (defconst build-dir (expand-file-name "build/" dotfiles-dir)
   "Where .el files are built and cached.")
+
+(defconst var-dir (expand-file-name "var" dotfiles-dir)
+  "Where files managed by emacs and not supposed to be edited directly are kept")
+
+(defconst elisp-dir (expand-file-name "src" dotfiles-dir)
+  "Where elisp extensions are kept")
+
+(defconst vendor-dir (expand-file-name "vendor" dotfiles-dir)
+  "Where non-elisp extensions are kept")
+
+(defconst private-dir (expand-file-name "private" dotfiles-dir)
+  "This module is untracked by git.  Put private information there"
+)
+
+(require 'package)
+
+(package-initialize)
+
+;; TODO: Check for el-get
 
 ;; select a local version of Org-mode if present
 (let* ((org-dir (expand-file-name
@@ -23,10 +45,12 @@
        (load-path (append (list org-dir org-contrib-dir)
                           (or load-path nil))))
   ;; load up Org-mode and Org-babel
+  (require 'org)
+
   (require 'org-install)
   (require 'ob-tangle))
 
-(defun paolog-load-init-file (path file)
+(defun load-org-init-file (path file)
   "Load Emacs Lisp source code blocks in the Org-mode FILE.  This
 function exports the source code using `org-babel-tangle' to
 PATH directory and then loads the resulting file using
@@ -46,7 +70,7 @@ PATH directory and then loads the resulting file using
     (load-file exported-file)
     (message "Loaded %s (%s)" file exported-file)))
 
-(defalias 'load-init-filename (apply-partially 'paolog-load-init-file build-dir)
+(defalias 'load-org-init-filename (apply-partially 'load-org-init-file build-dir)
   "Load Emacs Lisp source code blocks in the Org-mode FILE. Store cache .el files in `build-dir`")
 
 (defun load-init-file (file)
@@ -64,7 +88,7 @@ FILE can be an absolute or relative path to a file.  In case of a relative path,
     (setq file (concat file ".org")))
   (setq file (expand-file-name file dotfiles-dir))
   (if (equal "org" (file-name-extension file))
-      (load-init-filename file)
+      (load-org-init-filename file)
     (load file)))
 
 (load-init-file "emacs.org")

@@ -1,3 +1,16 @@
 /.places
 elpa/
 build/
+/.saved-places
+/ac-comphist.dat
+/bookmarks
+/custom.el
+/org-clock-save.el
+/tramp
+/url/
+/eshell/
+/eproject.lst
+/var/
+/src/
+/vendor/
+/private/
