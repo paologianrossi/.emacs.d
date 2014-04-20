@@ -1,0 +1,99 @@
+* Email in emacs
+
+There are various ways to do email in Emacs.  We use [[http://www.djcbsoftware.nl/code/mu/mu4e/][MU4E]].
+
+For that, we have to fetch mail to a local maildir.  We use [[http://offlineimap.org/][Offlineimap]] (but it's really not important what you use).
+
+Once that is all set up, we can call `M-x mu4e` and be happy.
+
+#+name: mu4e-init
+#+begin_src emacs-lisp
+
+  (require 'mu4e)
+
+  (setq mail-user-agent 'mu4e-user-agent)
+  (setq send-mail-function 'smtpmail-send-it)
+  (setq smtpmail-smtp-server smtp-mail-server)
+
+#+end_src
+
+Let's define some folders.  Note that we use "Exchange-like" names because that's what we got.  Also, we download mail into the ~/Maildir directory.
+
+#+name: mu4e-folders
+#+begin_src emacs-lisp
+
+    (setq
+     mu4e-maildir       "~/Maildir"   ;; top-level Maildir
+     mu4e-sent-folder   "/Sent Items"       ;; folder for sent messages
+     mu4e-drafts-folder "/Drafts"     ;; unfinished messages
+     mu4e-trash-folder  "/Deleted Items"      ;; trashed messages
+     mu4e-refile-folder "/Archive")   ;; saved messages
+
+#+end_src
+
+#+name: mu4e
+#+begin_src emacs-lisp
+
+
+     (setq
+      mu4e-get-mail-command "offlineimap"   ;; or fetchmail, or ...
+      mu4e-update-interval 300
+      mu4e-headers-auto-update t
+      )             ;; update every 5 minutes
+
+
+
+     (setq mu4e-attachment-dir  "~/Downloads")
+
+     ;; enable inline images
+     (setq mu4e-view-show-images t)
+     ;; use imagemagick, if available
+     (when (fboundp 'imagemagick-register-types)
+       (imagemagick-register-types))
+
+     (setq mu4e-view-prefer-html t)
+     (setq mu4e-html2text-command "w3m -T text/html")
+
+     (setq mu4e-maildir-shortcuts
+           '( ("/INBOX"       . ?i)
+              ("/Sent Items"  . ?s)
+              ("/Deleted Items"       . ?t)
+              ("/Drafts"      . ?d)))
+
+
+        (add-hook 'mu4e-compose-mode-hook
+           (defun my-do-compose-stuff ()
+              "My settings for message composition."
+              (set-fill-column 72)
+              (flyspell-mode)))
+
+
+
+     (setq smtpmail-queue-mail  nil  ;; start in non-queuing mode
+           smtpmail-queue-dir   "~/Maildir/queue/cur")
+
+    (setq message-kill-buffer-on-exit t)
+
+   ;;; message view action
+      (defun mu4e-msgv-action-view-in-browser (msg)
+        "View the body of the message in a web browser."
+        (interactive)
+        (let ((html (mu4e-msg-field (mu4e-message-at-point t) :body-html))
+              (tmpfile (format "%s/%d.html" temporary-file-directory (random))))
+          (unless html (error "No html part for this message"))
+          (with-temp-file tmpfile
+          (insert
+              "<html>"
+              "<head><meta http-equiv=\"content-type\""
+              "content=\"text/html;charset=UTF-8\">"
+             html))
+          (browse-url (concat "file://" tmpfile))))
+      (add-to-list 'mu4e-view-actions
+        '("View in browser" . mu4e-msgv-action-view-in-browser) t)
+
+  (setq mu4e-confirm-quit nil
+        mu4e-headers-date-format "%d/%b/%y %H:%M")
+
+  (require 'org-mu4e)
+
+#+end_src
