@@ -92,18 +92,23 @@ You should probably use that, anyway.
 
 #+Name: package-setup
 #+begin_src emacs-lisp
-      (require 'package)
+  (require 'package)
 
-      (setq package-archives
-            '(("gnu"         . "http://elpa.gnu.org/packages/")
-              ("org"         . "http://orgmode.org/elpa/")
-              ("melpa"       . "http://melpa.milkbox.net/packages/")
-              ("marmalade"   . "http://marmalade-repo.org/packages/")))
+  (setq package-archives
+        '(("gnu"         . "http://elpa.gnu.org/packages/")
+          ("org"         . "http://orgmode.org/elpa/")
+          ("melpa"       . "http://melpa.milkbox.net/packages/")
+          ("marmalade"   . "http://marmalade-repo.org/packages/")
+          ("elpy"        . "http://jorgenschaefer.github.io/packages/")))
 
-      (package-initialize)
+  (package-initialize)
 #+end_src
 
-- Small nuisance with ELPA is it does not know by default what we want to install.  Let's make it easier to do this: we define function `i-require`.  This works mostly as `require`, except it will try to install the package if it cannot be found.
+- Small nuisance with ELPA is it does not know by default what we want
+  to install.  Let's make it easier to do this: we define function
+  `i-require`.  This works mostly as `require`, except it will try to
+  install the package if it cannot be found.
+
 #+name: i-require
 #+begin_src emacs-lisp
   (defun package-loadable-p (package)
@@ -137,7 +142,8 @@ You should probably use that, anyway.
 
 ** Visuals
 
-- My favourite theme, so far, is `ample-zen`.  It comes with ELPA.  We hardcode the safe-theme string here, though I don't like it so much.
+- My favourite theme, so far, is `ample-zen`.  It comes with ELPA.  We
+  hardcode the safe-theme string here, though I don't like it so much.
 
 #+name: theme
 #+begin_src emacs-lisp
@@ -155,7 +161,8 @@ You should probably use that, anyway.
   (tool-bar-mode 0)
 #+end_src
 
-- Remove also the menu, but not on the Mac:  it's going to be there anyway, so it might as well be full-fledged.
+- Remove also the menu, but not on the Mac: it's going to be there
+  anyway, so it might as well be full-fledged.
 #+name: menu-bar
 #+begin_src emacs-lisp
   (if (or (string= window-system "ns") (string= window-system "mac"))
@@ -163,7 +170,9 @@ You should probably use that, anyway.
     (menu-bar-mode 0))
 #+end_src
 
-- Startup messages are another source of distraction.  Even though they happen just once (at startup, duh), we remove them because we can.
+- Startup messages are another source of distraction.  Even though
+  they happen just once (at startup, duh), we remove them because we
+  can.
 
 #+name: startup-messages-off
 #+begin_src emacs-lisp
@@ -200,6 +209,19 @@ username.  This needs to be done in Customize to work.
 #+begin_src emacs-lisp
   (i-require 'powerline)
   (powerline-center-theme)
+#+end_src
+
+- Yes and no should never be asked graphically (that also makes emacs on the mac explode...)
+#+name: y-n-fix
+#+begin_src emacs-lisp
+(defadvice yes-or-no-p (around prevent-dialog activate)
+  "Prevent yes-or-no-p from activating a dialog"
+  (let ((use-dialog-box nil))
+    ad-do-it))
+(defadvice y-or-n-p (around prevent-dialog-yorn activate)
+  "Prevent y-or-n-p from activating a dialog"
+  (let ((use-dialog-box nil))
+    ad-do-it))
 #+end_src
 
 ** Fullscreen
@@ -406,6 +428,10 @@ username.  This needs to be done in Customize to work.
   (require 'ido)
   (ido-mode 1)
   (install-packages-if-needed 'ido-ubiquitous)
+  (i-require 'flx-ido)
+  (flx-ido-mode 1)
+  (setq ido-use-faces nil)
+
   (ido-ubiquitous-mode 1)
 
   ;; Fix ido-ubiquitous for newer packages
@@ -418,6 +444,15 @@ username.  This needs to be done in Customize to work.
   (ido-ubiquitous-use-new-completing-read webjump 'webjump)
   (ido-ubiquitous-use-new-completing-read yas/expand 'yasnippet)
   (ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
+
+ ;; Display ido results vertically, rather than horizontally
+  (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
+  (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
+  (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
+  (defun ido-define-keys () ;; C-n/p is more intuitive in vertical layout
+    (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
+    (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
+  (add-hook 'ido-setup-hook 'ido-define-keys)
 
   (add-hook 'ido-setup-hook
             (lambda ()
@@ -766,9 +801,6 @@ Here we configure Helm and Smex.
     (i-require 'flymake)
     (i-require 'rfringe)
     (global-flycheck-mode)
-  ;; Python specific, actually
-    (i-require 'flymake-python-pyflakes)
-    (setq flymake-python-pyflakes-executable (expand-file-name "python-env/bin/flake8" vendor-dir))
 #+end_src
 
 ** Org-mode
@@ -779,12 +811,15 @@ Here we configure Helm and Smex.
 ** Python-mode
 #+name: python
 #+begin_src emacs-lisp
-(load-init-file "python")
+  (package-initialize)
+  (elpy-enable)
+  (define-key yas-minor-mode-map (kbd "C-c k") 'yas-expand)
+(define-key global-map (kbd "C-c o") 'iedit-mode)
 #+end_src
 ** Ruby-mode
-#+name: python
+#+name: ruby
 #+begin_src emacs-lisp
-(load-init-file "ruby")
+  (load-init-file "ruby")
 #+end_src
 ** Bookmarks
 #+name: bookmarks
