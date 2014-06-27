@@ -4,11 +4,15 @@ Welcome to my emacs configuration.
 
 This should set up emacs as I like it anywhere I need it.
 
-The idea for this configuration (and some of the defuns) are blatantly stolen or adapted from the [[https://github.com/eschulte/emacs24-starter-kit/][Emacs Starter Kit]].  The main reason why I do this myself instead of using ESK itself is I want to work a bit with emacs lisp and I want to set every thing precisely as I mean it.  You should probably use that, anyway.
+The idea for this configuration (and some of the defuns) are blatantly
+stolen or adapted from the [[https://github.com/eschulte/emacs24-starter-kit/][Emacs Starter Kit]].  The main reason why I
+do this myself instead of using ESK itself is I want to work a bit
+with emacs lisp and I want to set every thing precisely as I mean it.
+You should probably use that, anyway.
 
 ** Caveats
 
-- Emacs 24.3 is required.
+- Emacs 24.3 is required.  Higher versions might break, right now.
 
 - If on the Mac, use a Cocoa version.  This is mostly for keyboard
   issues on non-US keyboards, but also fullscreen and more works
@@ -18,7 +22,12 @@ The idea for this configuration (and some of the defuns) are blatantly stolen or
 * Implementation
 ** Defining where to look for things
 
-- Emacs uses the `load-path` variable to hold a list of paths where to look for libraries.  We set this to hold recursively our `dotfiles-dir` to be able to load our own configuration; and `elisp-dir`, to be able to load extensions we downloaded not using [[http://www.emacswiki.org/emacs/ELPA][ELPA]].  We also want to be able to load packages installed through ELPA, but this is taken care of [[*ELPA][elsewhere]].
+- Emacs uses the `load-path` variable to hold a list of paths where to
+  look for libraries.  We set this to hold recursively our
+  `dotfiles-dir` to be able to load our own configuration; and
+  `elisp-dir`, to be able to load extensions we downloaded not using
+  [[http://www.emacswiki.org/emacs/ELPA][ELPA]].  We also want to be able to load packages installed through
+  ELPA, but this is taken care of [[*ELPA][elsewhere]].
 
 #+name: load-paths
 #+begin_src emacs-lisp
@@ -30,7 +39,9 @@ The idea for this configuration (and some of the defuns) are blatantly stolen or
         (normal-top-level-add-subdirs-to-load-path)))))
 #+end_src
 
-- Various packages need to generate files not for human consumption.  We store them in their own directory, `var-dir` to avoid cluttering our configs.
+- Various packages need to generate files not for human consumption.
+  We store them in their own directory, `var-dir` to avoid cluttering
+  our configs.
 
 #+name: var-dir-inhabitants
 #+begin_src emacs-lisp
@@ -52,14 +63,19 @@ The idea for this configuration (and some of the defuns) are blatantly stolen or
 #+end_src
 
 ** Server
-- Emacs server and client are neat.  You can open many emacs windows like instances, but never actually have to reload it.  This makes for a snappy experience.  We usually start the server from the shell, by starting emacs with the following line:
+- Emacs server and client are neat.  You can open many emacs windows
+  like instances, but never actually have to reload it.  This makes
+  for a snappy experience.  We usually start the server from the
+  shell, by starting emacs with the following line:
 
 #+name: ec-script
 #+begin_src sh
   emacsclient -a "" -n -c "$@"
 #+end_src
 
-- When we close emacs (`C-x C-c`), only the terminal is actually killed.  If you want to shutdown everything, including the server, use the following command:
+- When we close emacs (`C-x C-c`), only the terminal is actually
+  killed.  If you want to shutdown everything, including the server,
+  use the following command:
 
 #+name: server-shutdown
 #+begin_src emacs-lisp
@@ -71,7 +87,8 @@ The idea for this configuration (and some of the defuns) are blatantly stolen or
 #+end_src
 
 ** ELPA
-- ELPA packages is the best thing after sliced emacs.  However we want all good repos set up.
+- ELPA packages is the best thing after sliced emacs.  However we want
+  all good repos set up.
 
 #+Name: package-setup
 #+begin_src emacs-lisp
@@ -154,7 +171,8 @@ The idea for this configuration (and some of the defuns) are blatantly stolen or
   (setq inhibit-startup-message t)
 #+end_src
 
-You also want to set inhibit-startup-echo-area-message to your username.  This needs to be done in Customize to work.
+You also want to set inhibit-startup-echo-area-message to your
+username.  This needs to be done in Customize to work.
 
 - If we have a title bar, set the frame title to the current file (from [[http://emacs-fu.blogspot.co.uk/2011/01/setting-frame-title.html]])
 #+name: frame-title
