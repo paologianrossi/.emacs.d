@@ -8,8 +8,11 @@ Once that is all set up, we can call `M-x mu4e` and be happy.
 
 #+name: mu4e-init
 #+begin_src emacs-lisp
-
-  (require 'mu4e)
+  (let* ((mu4e-dir (expand-file-name
+                         "mu4e" elisp-dir))
+    (load-path (append (list mu4e-dir)
+                       (or load-path nil))))
+    (require 'mu4e))
 
   (setq mail-user-agent 'mu4e-user-agent)
   (setq send-mail-function 'smtpmail-send-it)
