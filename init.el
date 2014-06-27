@@ -25,7 +25,7 @@
 
 (defconst private-dir (expand-file-name "private" dotfiles-dir)
   "This module is untracked by git.  Put private information there"
-)
+  )
 
 (require 'package)
 
@@ -33,22 +33,9 @@
 
 ;; TODO: Check for el-get
 
-;; select a local version of Org-mode if present
-(let* ((org-dir (expand-file-name
-                 "lisp" (expand-file-name
-                         "org" (expand-file-name
-                                "src" dotfiles-dir))))
-       (org-contrib-dir (expand-file-name
-                         "lisp" (expand-file-name
-                                 "contrib" (expand-file-name
-                                            ".." org-dir))))
-       (load-path (append (list org-dir org-contrib-dir)
-                          (or load-path nil))))
-  ;; load up Org-mode and Org-babel
-  (require 'org)
-
-  (require 'org-install)
-  (require 'ob-tangle))
+(add-to-list 'load-path "~/.emacs.d/src/org/lisp")
+(add-to-list 'load-path "~/.emacs.d/src/org/contrib/lisp" t)
+(require 'org)
 
 (defun load-org-init-file (path file)
   "Load Emacs Lisp source code blocks in the Org-mode FILE.  This
