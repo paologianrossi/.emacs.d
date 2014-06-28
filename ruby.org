@@ -87,7 +87,7 @@ My normal workflow is with ERB templates and Rspec tests (managed later.)  This 
 
       ;; Rhtml mode should be active for rails
       (i-require 'rhtml-mode)
-      (sp-with-modes '(rhtml-mode)   (sp-local-pair "<" ">")   (sp-local-pair "<%" "%>"))
+;      (sp-with-modes '(rhtml-mode)   (sp-local-pair "<" ">")   (sp-local-pair "<%" "%>"))
 
       ;; Projectile expanded to rails mode in rails projects
       (i-require 'projectile-rails)
