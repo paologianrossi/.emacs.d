@@ -53,7 +53,6 @@ You should probably use that, anyway.
 
 ** Personal info
 - Load what is in `personal` if it's there.
-- Right now it just loads this single file...
 
 #+name: personal-info
 #+begin_src emacs-lisp
@@ -61,6 +60,50 @@ You should probably use that, anyway.
     (dolist (file (directory-files private-dir t "\.el$"))
       (load-init-file file)))
 #+end_src
+
+** OS-specific configurations and helpers
+- Depending on the OS we're into, do different things
+
+*** Find out where we are
+- We could be on a Mac, on X or on a terminal (technically also on
+  Windows, etc., but not there yet)
+
+#+begin_src emacs-lisp
+  (defun macosx? ()
+    "Return t if on the Mac (either GUI or terminal)"
+    (string= system-type "darwin")
+  )
+
+  (defun macosx-ns? ()
+    (and (macosx?) (string= window-system "ns")))
+
+  (defun macosx-aqua? ()
+    (and (macosx?) (string= window-system "mac")))
+
+  (defun macosx-gui? ()
+    "Return t if on a graphical instance on the Mac."
+    (or (macosx-ns?) (macosx-aqua?)))
+
+  (defun gui? ()
+    "Return t if a graphical instance."
+    (and window-system t))
+
+  (defun linux? ()
+    "Return t if on a gnu/linux system"
+    (string= system-type "gnu/linux"))
+#+end_src
+
+*** Setup modifiers on Mac
+We want CMD Meta, left-option (left-alt) Super, right-option (right-alt) Alt.
+
+#+name: mac-modifiers
+#+begin_src emacs-lisp
+  (setq mac-command-modifier 'meta)
+  (setq mac-option-modifier 'super)
+  ;;; if on the Mac, right alt should be alt (not meta, super, hyper or whatever)
+  (setq mac-right-option-modifier nil)
+#+end_src
+
 
 ** Server
 - Emacs server and client are neat.  You can open many emacs windows
@@ -642,7 +685,6 @@ UTF-8 please!
     (put 'scroll-left 'disabled nil)
 
 #+end_src
-
 ** Dired
 #+name: dired
 #+begin_src emacs-lisp
@@ -687,20 +729,6 @@ UTF-8 please!
             (lambda ()
               (define-key shell-mode-map
                 (kbd "C-d") 'comint-delchar-or-eof-or-kill-buffer)))
-#+end_src
-
-
-** MacOS X specific configuration
-If we are on a mac, we have some specific configuration.
-*** Setup modifiers
-We want CMD Meta, left-option (left-alt) Super, right-option (right-alt) Alt.
-
-#+name: mac-modifiers
-#+begin_src emacs-lisp
-  (setq mac-command-modifier 'meta)
-  (setq mac-option-modifier 'super)
-  ;;; if on the Mac, right alt should be alt (not meta, super, hyper or whatever)
-  (setq mac-right-option-modifier nil)
 #+end_src
 
 
