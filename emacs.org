@@ -52,8 +52,8 @@ You should probably use that, anyway.
 #+end_src
 
 ** Personal info
-- Load what is in `personal` if it's there.
-- Right now it just loads this single file...
+- Load what is in `personal` if it's there.  This is useful to avoid
+  having secret stuff leak into public repositories.
 
 #+name: personal-info
 #+begin_src emacs-lisp
@@ -142,8 +142,7 @@ You should probably use that, anyway.
 
 ** Visuals
 
-- My favourite theme, so far, is `ample-zen`.  It comes with ELPA.  We
-  hardcode the safe-theme string here, though I don't like it so much.
+- My favourite theme, right now, is `tango-dark`.  It comes with Emacs.  I also set my fonts here.
 
 #+name: theme
 #+begin_src emacs-lisp

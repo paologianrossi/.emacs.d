@@ -89,10 +89,9 @@ Init files are in Org-mode, a neat Babel hack.  Make this easier to convert.
 
 #+name: org-directory
 #+begin_src emacs-lisp
-
-(setq org-directory "~/org")
-(setq org-agenda-files (quote ("~/org/")))
-(setq org-default-notes-file "~/org/refile.org")
+  (setq org-directory "~/org")
+  (setq org-agenda-files (quote ("~/org/")))
+  (setq org-default-notes-file "~/org/refile.org")
 
 #+end_src
 

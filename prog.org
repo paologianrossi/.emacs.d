@@ -8,9 +8,10 @@ enable hl-line-mode for prog-mode, but only if we're not on the terminal.
 
 #+name: hl-mode
 #+begin_src emacs-lisp
-   (if window-system
-       (add-hook 'prog-mode-hook (lambda () (interactive) (hl-line-mode 1)))
-     )
+  (if window-system
+      (set-face-background 'hl-line "Grey60")
+      (add-hook 'prog-mode-hook (lambda () (interactive) (hl-line-mode 1)))
+    )
 #+end_src
 
 ** Auto-complete mode
