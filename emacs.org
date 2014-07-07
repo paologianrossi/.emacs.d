@@ -146,9 +146,12 @@ You should probably use that, anyway.
 
 #+name: theme
 #+begin_src emacs-lisp
-  (setq custom-safe-themes (quote ("2b5aa66b7d5be41b18cc67f3286ae664134b95ccc4a86c9339c886dfd736132d" default)))
-  (install-package-if-needed 'ample-zen-theme)
-  (load-theme 'ample-zen)
+  (load-theme 'tango-dark)
+  ;; Powerline needs more readable foreground colors with this theme
+(add-to-list 'default-frame-alist
+             '(font . "Menlo-14"))
+  (set-face-foreground 'powerline-active1 "LightGoldenRod")
+  (set-face-foreground 'powerline-active2 "#770000")
 #+end_src
 
 - Let's remove useless distractions: make cursor a solid, non-blinking block and remove mouse interfaces.
