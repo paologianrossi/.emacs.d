@@ -6,10 +6,9 @@ For that, we have to fetch mail to a local maildir.  We use [[http://offlineimap
 
 Once that is all set up, we can call `M-x mu4e` and be happy.
 
-#+name: mu4e-init
 #+begin_src emacs-lisp
   (let* ((mu4e-dir (expand-file-name
-                         "mu4e" elisp-dir))
+                         "mu/mu4e" elisp-dir))
     (load-path (append (list mu4e-dir)
                        (or load-path nil))))
     (require 'mu4e))
@@ -34,17 +33,13 @@ Let's define some folders.  Note that we use "Exchange-like" names because that'
 
 #+end_src
 
-#+name: mu4e
+
 #+begin_src emacs-lisp
-
-
      (setq
       mu4e-get-mail-command "offlineimap"   ;; or fetchmail, or ...
       mu4e-update-interval 300
       mu4e-headers-auto-update t
       )             ;; update every 5 minutes
-
-
 
      (setq mu4e-attachment-dir  "~/Downloads")
 
@@ -69,7 +64,6 @@ Let's define some folders.  Note that we use "Exchange-like" names because that'
               "My settings for message composition."
               (set-fill-column 72)
               (flyspell-mode)))
-
 
 
      (setq smtpmail-queue-mail  nil  ;; start in non-queuing mode
