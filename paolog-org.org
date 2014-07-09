@@ -1,14 +1,13 @@
-* Org-mode configuration
-
+* Org-Mode configuration
 Here, we configure and set up all kind of extensions and hacks for Org-mode.
 It is mostly derived from http://doc.norang.ca/org-mode.html ways and ideas.
 
-I don't use customize for org because it gets too complicated.
+I don't use customize for Org because it gets too complicated.
 
-
-#+name: org-require
+** Init
 #+begin_src emacs-lisp
-    (require 'org-install)
+  (require 'org-install)
+  (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
 #+end_src
 
 ** Bindings
@@ -33,116 +32,60 @@ Unset `C-[` and `C-]` in org-mode: it would alter our `org-agenda-files`, but we
   (global-set-key (kbd "<f8>") 'org-cycle-agenda-files)
 
 #+end_src
+*** TODO I don't use clocking anymore, but timers are sometimes still nice (esp. for things like interviews, etc.)
 
-- Clock related bindings.  Use `<F9>` as prefix for all clock functions.
-#+name: org-clock-bindings
+** Code in Org
+   I use source code blocks now and then, especially for my init files.
+   Make them easier to use by fontifying the code and making tab (almost) work.
 #+begin_src emacs-lisp
-  (define-prefix-command 'org-clock-map)
-  (global-set-key (kbd "<f9>") 'org-clock-map)
-  (define-key org-clock-map (kbd "g") 'org-clock-goto)
-  (define-key org-clock-map (kbd "i") 'org-clock-in)
-  (define-key org-clock-map (kbd "l") 'org-clock-in-last)
-  (define-key org-clock-map (kbd "o") 'org-clock-out)
-  (define-key org-clock-map (kbd "r") 'org-clock-report)
-  (define-key org-clock-map (kbd "> e") 'org-set-effort)
-  (define-key org-clock-map (kbd "C-e") 'org-clock-modify-effort-estimate)
-  (define-key org-clock-map (kbd "j") 'org-clock-goto)
-  (define-key org-clock-map (kbd "t .") 'org-timer)
-  (define-key org-clock-map (kbd "t -") 'org-timer-item)
-  (define-key org-clock-map (kbd "t ,") 'org-timer-pause-or-continue)
-  (define-key org-clock-map (kbd "t /") 'org-timer-stop)
-  (define-key org-clock-map (kbd "t ^") 'org-timer-start)
-#+end_src
-
-** Init file helpers
-Init files are in Org-mode, a neat Babel hack.  Make this easier to convert.
-#+name: org-init-helpers
-#+begin_src emacs-lisp
-
-  (defun elisp-block (name)
-      "Insert or wrap region with an elisp block for init with name NAME"
-      (interactive "sName: ")
-      (let (pos1 pos2)
-        (save-excursion
-          (if (region-active-p)
-              (setq pos1 (region-beginning) pos2 (region-end))
-            (setq pos1 (point) pos2 (point)))
-          (goto-char pos1)
-          (insert (concat "#+name: " name "\n"))
-          (insert "#+begin_src emacs-lisp\n")
-          (goto-char pos2)
-          (next-line 2)
-          (beginning-of-line)
-          (insert "#+end_src\n")
-          )))
-
   (setq org-src-fontify-natively t)
   (setq org-src-tab-acts-natively t)
-
-  (define-key org-mode-map (kbd "C-c B") 'elisp-block)
-
 #+end_src
 
-** General configuration
+** Better visuals
+   - Use UTF-8 bullets
+     #+begin_src emacs-lisp
+       (require 'org-bullets)
+       (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+     #+end_src
 
-- We keep Org files in ~/org
+*** TODO This should belong to general text modes
+   - Whitespace and visual-line modes should be set up right
+      #+begin_src emacs-lisp
+        (add-hook 'org-mode-hook (lambda()
+                                   (whitespace-mode 0)
+                                   (visual-line-mode 1)))
+      #+end_src
 
-#+name: org-directory
+** Basic preferences
+- Can't say a task is done unless all subtasks are already done.
 #+begin_src emacs-lisp
-  (setq org-directory "~/org")
-  (setq org-agenda-files (quote ("~/org/")))
-  (setq org-default-notes-file "~/org/refile.org")
-
-#+end_src
-
-- We keep persistance files (e.g. `org-clock-persist-file`) in var/
-
-#+name: org-var-files
-#+begin_src emacs-lisp
-  (setq org-clock-persist-file (expand-file-name "org-clock-save.el" var-dir))
-#+end_src
-
-- Orgmode for octopress publishing
-#+name: octopress
-#+begin_src emacs-lisp
-  (i-require 'org-octopress)
-  (setq org-octopress-directory-top       "~/Documents/blog/source")
-  (setq org-octopress-directory-posts     "~/Documents/blog/source/_posts")
-  (setq org-octopress-directory-org-top   "~/Documents/blog/source")
-  (setq org-octopress-directory-org-posts "~/Documents/blog/source/blog")
-  (setq org-octopress-setup-file          "~/org-sty/setupfile.org")
-
-#+end_src
-
-#+name: org-to-move
-#+begin_src emacs-lisp
-
   (setq org-enforce-todo-dependencies t)
-  (setq org-startup-indented t)
-  (setq org-cycle-separator-lines 0)
-  (setq org-blank-before-new-entry (quote ((heading)
-                                     (plain-list-item . auto))))
-  (setq org-insert-heading-respect-content nil)
-  (setq org-reverse-note-order nil)
+#+end_src
+
+- Create new headings after the current line, instead of after the current subtree
+#+begin_src emacs-lisp
+    (setq org-insert-heading-respect-content nil)
+#+end_src
+
+- Show context when revealing a location
+#+begin_src emacs-lisp
   (setq org-show-following-heading t)
   (setq org-show-hierarchy-above t)
-  (setq org-show-siblings (quote ((default))))
-  (setq org-special-ctrl-a/e t)
-  (setq org-special-ctrl-k t)
-  (setq org-yank-adjusted-subtrees t)
-  (setq org-reverse-note-order nil)
+  (setq org-show-siblings t)
+#+end_src
 
-  ; (require 'org-wikinodes)
-  ; (setq org-wikinodes-scope 'directory)
+- Adapt commands to better behave in org
+  #+begin_src emacs-lisp
+    (setq org-special-ctrl-a/e t)
+    (setq org-special-ctrl-k t)
+    (setq org-yank-adjusted-subtrees t)
+  #+end_src
 
-  ; (require 'org-secretary)
+** Todo lists
+Define the possible stages and transitions, and how they should appear in our buffers.
 
-  ; (require 'org-mac-link)
-  (add-hook 'org-mode-hook (lambda ()
-                             (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
-
-  
-  ;;; Section: todo
+#+begin_src emacs-lisp
   (setq org-todo-keywords
         (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
                 (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
@@ -156,437 +99,162 @@ Init files are in Org-mode, a neat Babel hack.  Make this easier to convert.
                 ("CANCELLED" :foreground "forest green" :weight bold)
                 ("MEETING" :foreground "forest green" :weight bold)
                 ("PHONE" :foreground "forest green" :weight bold))))
-  
-  ;;; Section: capture
-
-  (setq org-capture-templates
-        (quote (("t" "todo" entry (file "~/org/refile.org")
-                 "* TODO %?\n%U\n%a\n" :clock-in t :clock-resume t)
-                ("n" "note" entry (file "~/org/notes.org")
-                 "* %? :NOTE:\n%U\n%a\n" :clock-in t :clock-resume t)
-                ("j" "Journal" entry (file+datetree "~/org/diary.org")
-                 "* %?\n%U\n" :clock-in t :clock-resume t)
-                ("w" "org-protocol" entry (file "~/org/refile.org")
-                 "* TODO Review %c\n%U\n" :immediate-finish t)
-                ("m" "Meeting" entry (file "~/org/refile.org")
-                 "* MEETING with %? :MEETING:\n%U" :clock-in t :clock-resume t)
-                ("p" "Phone call" entry (file "~/org/refile.org")
-                 "* PHONE %? :PHONE:\n%U" :clock-in t :clock-resume t)
-                ("h" "Habit" entry (file "~/org/refile.org")
-                 "* NEXT %?\n%U\n%a\nSCHEDULED: %(format-time-string \"<%Y-%m-%d %a .+1d/3d>\")\n:PROPERTIES:\n:STYLE: habit\n:REPEAT_TO_STATE: NEXT\n:END:\n"))))
-
-  
-  ;;; Section: refiling
-
-  ; Targets include this file and any file contributing to the agenda - up to 9 levels deep
-  (setq org-refile-targets (quote ((nil :maxlevel . 9)
-                                   (org-agenda-files :maxlevel . 9))))
-
-  ; Use full outline paths for refile targets - we file directly with IDO
-  (setq org-refile-use-outline-path t)
-
-  ; Targets complete directly with IDO
-  (setq org-outline-path-complete-in-steps nil)
-
-  ; Allow refile to create parent tasks with confirmation
-  (setq org-refile-allow-creating-parent-nodes (quote confirm))
-
-  ; Use IDO for both buffer and file completion and ido-everywhere to t
-  (setq org-completion-use-ido t)
-
-  ; Use the current window for indirect buffer display
-  (setq org-indirect-buffer-display 'current-window)
-
-  ;;;; Refile settings
-  ; Exclude DONE state tasks from refile targets
-  (defun bh/verify-refile-target ()
-    "Exclude todo keywords with a done state from refile targets."
-    (not (member (nth 2 (org-heading-components)) org-done-keywords)))
-
-  (setq org-refile-target-verify-function 'bh/verify-refile-target)
-
-  
-  ;;; Section: agenda
-
-  ;; Do not dim blocked tasks
-  (setq org-agenda-dim-blocked-tasks nil)
-
-  ;; Compact the block agenda view
-  (setq org-agenda-compact-blocks t)
-
-  ;; By default show today
-  (setq org-agenda-span 'day)
-
-  (setq org-agenda-include-diary nil)
-  (setq org-agenda-diary-file "~/org/diary.org")
-
-  (setq org-deadline-warning-days 30)
-
-  
-  ;;; Clocking
-
-  (require 'org-clock)
-
-  (defun bh/remove-empty-drawer-on-clock-out ()
-    "Remove empty LOGBOOK drawers on clock out."
-    (interactive)
-    (save-excursion
-      (beginning-of-line 0)
-      (org-remove-empty-drawer-at "LOGBOOK" (point))))
-
-  (add-hook 'org-clock-out-hook 'bh/remove-empty-drawer-on-clock-out 'append)
-
-  ;;
-  ;; Resume clocking task when emacs is restarted
-  (org-clock-persistence-insinuate)
-
-  ;; Resume clocking task on clock-in if the clock is open
-  (setq org-clock-in-resume t)
-
-  ;; Separate drawers for clocking and logs
-  (setq org-drawers (quote ("PROPERTIES" "LOGBOOK")))
-
-  ;; Save clock data and state changes and notes in the LOGBOOK drawer
-  (setq org-clock-into-drawer t)
-
-  ;; Sometimes I change tasks I'm clocking quickly - this removes clocked tasks with 0:00 duration
-  (setq org-clock-out-remove-zero-time-clocks t)
-
-  ;; set idle time to 10 minutes
-  (setq org-clock-idle-time 10)
-
-  ;; Clock out when moving task to a done state
-  (setq org-clock-out-when-done t)
-
-  ;; Save the running clock and all clock history when exiting Emacs, load it on startup
-  (setq org-clock-persist t)
-
-  ;; Do not prompt to resume an active clock
-  (setq org-clock-persist-query-resume nil)
-
-  ;; Enable auto clock resolution for finding open clocks
-  (setq org-clock-auto-clock-resolution (quote when-no-clock-is-running))
-
-  ;; Include current clocking task in clock reports
-  (setq org-clock-report-include-clocking-task t)
-
-  
-  ;;; Section: tracking
-
-  ;; Agenda clock report parameters
-  (setq org-agenda-clockreport-parameter-plist
-        (quote (:link t :maxlevel 5 :fileskip0 t :compact t :narrow 80)))
-
-  ; Set default column view headings: Task Effort Clock_Summary
-  (setq org-columns-default-format "%80ITEM(Task) %10Effort(Effort){:} %10CLOCKSUM")
-
-  ;; global Effort estimate values
-  ;; global STYLE property values for completion
-  (setq org-global-properties (quote (("Effort_ALL" . "0:15 0:30 0:45 1:00 2:00 3:00 4:00 5:00 6:00 0:00")
-                                      ("STYLE_ALL" . "habit"))))
-
-  ;; Agenda log mode items to display (closed and state changes by default)
-  (setq org-agenda-log-mode-items (quote (closed state)))
-
-
-  
-  ;;; Section: Tagging
-
-  ;; Tags with fast selection keys
-  (setq org-tag-alist (quote ((:startgroup)
-                              ("@errand" . ?e)
-                              ("@office" . ?o)
-                              ("@home" . ?H)
-                              (:endgroup)
-                              ("CODE" . ?C)
-                              ("DESIGN" . ?D)
-                              ("PLAN" . ?P)
-                              ("MEETING" . ?M)
-                              ("OPERATIONAL" . ?O)
-                              ("crypt" . ?k))))
-
-                                          ; Allow setting single tags without the menu
-  (setq org-fast-tag-selection-single-key (quote expert))
-
-                                          ; For tag searches ignore tasks with scheduled and deadline dates
-  (setq org-agenda-tags-todo-honor-ignore-options t)
-
-  
-
-  ;;; Section: projects
-  (defun bh/is-project-p ()
-    "Any task with a todo keyword subtask."
-    (save-restriction
-      (widen)
-      (let ((has-subtask)
-            (subtree-end (save-excursion (org-end-of-subtree t)))
-            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-        (save-excursion
-          (forward-line 1)
-          (while (and (not has-subtask)
-                      (< (point) subtree-end)
-                      (re-search-forward "^\*+ " subtree-end t))
-            (when (member (org-get-todo-state) org-todo-keywords-1)
-              (setq has-subtask t))))
-        (and is-a-task has-subtask))))
-
-  (defun bh/is-project-subtree-p ()
-    "Any task with a todo keyword that is in a project subtree.
-  Callers of this function already widen the buffer view."
-    (let ((task (save-excursion (org-back-to-heading 'invisible-ok)
-                                (point))))
-      (save-excursion
-        (bh/find-project-task)
-        (if (equal (point) task)
-            nil
-          t))))
-
-  (defun bh/is-task-p ()
-    "Any task with a todo keyword and no subtask."
-    (save-restriction
-      (widen)
-      (let ((has-subtask)
-            (subtree-end (save-excursion (org-end-of-subtree t)))
-            (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-        (save-excursion
-          (forward-line 1)
-          (while (and (not has-subtask)
-                      (< (point) subtree-end)
-                      (re-search-forward "^\*+ " subtree-end t))
-            (when (member (org-get-todo-state) org-todo-keywords-1)
-              (setq has-subtask t))))
-        (and is-a-task (not has-subtask)))))
-
-  (defun bh/is-subproject-p ()
-    "Any task which is a subtask of another project."
-    (let ((is-subproject)
-          (is-a-task (member (nth 2 (org-heading-components)) org-todo-keywords-1)))
-      (save-excursion
-        (while (and (not is-subproject) (org-up-heading-safe))
-          (when (member (nth 2 (org-heading-components)) org-todo-keywords-1)
-            (setq is-subproject t))))
-      (and is-a-task is-subproject)))
-
-  (defun bh/list-sublevels-for-projects-indented ()
-    "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
-    This is normally used by skipping functions where this variable is already local to the agenda."
-    (if (marker-buffer org-agenda-restrict-begin)
-        (setq org-tags-match-list-sublevels 'indented)
-      (setq org-tags-match-list-sublevels nil))
-    nil)
-
-  (defun bh/list-sublevels-for-projects ()
-    "Set org-tags-match-list-sublevels so when restricted to a subtree we list all subtasks.
-  This is normally used by skipping functions where this variable
-  is already local to the agenda."
-    (if (marker-buffer org-agenda-restrict-begin)
-        (setq org-tags-match-list-sublevels t)
-      (setq org-tags-match-list-sublevels nil))
-    nil)
-
-  (defvar bh/hide-scheduled-and-waiting-next-tasks t)
-
-  (defun bh/toggle-next-task-display ()
-    (interactive)
-    (setq bh/hide-scheduled-and-waiting-next-tasks (not bh/hide-scheduled-and-waiting-next-tasks))
-    (when  (equal major-mode 'org-agenda-mode)
-      (org-agenda-redo))
-    (message "%s WAITING and SCHEDULED NEXT Tasks" (if bh/hide-scheduled-and-waiting-next-tasks "Hide" "Show")))
-
-  (defun bh/skip-stuck-projects ()
-    "Skip trees that are not stuck projects."
-    (save-restriction
-      (widen)
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-        (if (bh/is-project-p)
-            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                   (has-next ))
-              (save-excursion
-                (forward-line 1)
-                (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
-                  (unless (member "WAITING" (org-get-tags-at))
-                    (setq has-next t))))
-              (if has-next
-                  nil
-                next-headline)) ; a stuck project, has subtasks but no next task
-          nil))))
-
-  (defun bh/skip-non-stuck-projects ()
-    "Skip trees that are not stuck projects."
-    (bh/list-sublevels-for-projects-indented)
-    (save-restriction
-      (widen)
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-        (if (bh/is-project-p)
-            (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-                   (has-next ))
-              (save-excursion
-                (forward-line 1)
-                (while (and (not has-next) (< (point) subtree-end) (re-search-forward "^\\*+ NEXT " subtree-end t))
-                  (unless (member "WAITING" (org-get-tags-at))
-                    (setq has-next t))))
-              (if has-next
-                  next-headline
-                nil)) ; a stuck project, has subtasks but no next task
-          next-headline))))
-
-  (defun bh/skip-non-projects ()
-    "Skip trees that are not projects."
-    (bh/list-sublevels-for-projects-indented)
-    (if (save-excursion (bh/skip-non-stuck-projects))
-        (save-restriction
-          (widen)
-          (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-            (cond
-             ((and (bh/is-project-p)
-                   (marker-buffer org-agenda-restrict-begin))
-              nil)
-             ((and (bh/is-project-p)
-                   (not (marker-buffer org-agenda-restrict-begin))
-                   (not (bh/is-project-subtree-p)))
-              nil)
-             (t
-              subtree-end))))
-      (save-excursion (org-end-of-subtree t))))
-
-  (defun bh/skip-project-trees-and-habits ()
-    "Skip trees that are projects."
-    (save-restriction
-      (widen)
-      (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-        (cond
-         ((bh/is-project-p)
-          subtree-end)
-         ((org-is-habit-p)
-          subtree-end)
-         (t
-          nil)))))
-
-  (defun bh/skip-projects-and-habits-and-single-tasks ()
-    "Skip trees that are projects, tasks that are habits, single non-project tasks."
-    (save-restriction
-      (widen)
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max)))))
-        (cond
-         ((org-is-habit-p)
-          next-headline)
-         ((and bh/hide-scheduled-and-waiting-next-tasks
-               (member "WAITING" (org-get-tags-at)))
-          next-headline)
-         ((bh/is-project-p)
-          next-headline)
-         ((and (bh/is-task-p) (not (bh/is-project-subtree-p)))
-          next-headline)
-         (t
-          nil)))))
-
-  (defun bh/skip-project-tasks-maybe ()
-    "Show tasks related to the current restriction.
-  When restricted to a project, skip project and sub project tasks,
-  habits, NEXT tasks, and loose tasks.  When not restricted, skip
-  project and sub-project tasks, habits, and project related
-  tasks."
-    (save-restriction
-      (widen)
-      (let* ((subtree-end (save-excursion (org-end-of-subtree t)))
-             (next-headline (save-excursion (or (outline-next-heading) (point-max))))
-             (limit-to-project (marker-buffer org-agenda-restrict-begin)))
-        (cond
-         ((bh/is-project-p)
-          next-headline)
-         ((org-is-habit-p)
-          subtree-end)
-         ((and (not limit-to-project)
-               (bh/is-project-subtree-p))
-          subtree-end)
-         ((and limit-to-project
-               (bh/is-project-subtree-p)
-               (member (org-get-todo-state) (list "NEXT")))
-          subtree-end)
-         (t
-          nil)))))
-
-  (defun bh/skip-projects-and-habits ()
-    "Skip trees that are projects and tasks that are habits."
-    (save-restriction
-      (widen)
-      (let ((subtree-end (save-excursion (org-end-of-subtree t))))
-        (cond
-         ((bh/is-project-p)
-          subtree-end)
-         ((org-is-habit-p)
-          subtree-end)
-         (t
-          nil)))))
-
-  (defun bh/skip-non-subprojects ()
-    "Skip trees that are not projects."
-    (let ((next-headline (save-excursion (outline-next-heading))))
-      (if (bh/is-subproject-p)
-          nil
-        next-headline)))
-
-  
-  ;;; Section: archiving
-  (require 'org-archive)
-  (setq org-archive-mark-done nil)
-  (setq org-archive-location "%s_archive::* Archived Tasks")
-
-  (defun bh/skip-non-archivable-tasks ()
-    "Skip trees that are not available for archiving."
-    (save-restriction
-      (widen)
-      ;; Consider only tasks with done todo headings as archivable candidates
-      (let ((next-headline (save-excursion (or (outline-next-heading) (point-max))))
-            (subtree-end (save-excursion (org-end-of-subtree t))))
-        (if (member (org-get-todo-state) org-todo-keywords-1)
-            (if (member (org-get-todo-state) org-done-keywords)
-                (let* ((daynr (string-to-int (format-time-string "%d" (current-time))))
-                       (a-month-ago (* 60 60 24 (+ daynr 1)))
-                       (last-month (format-time-string "%Y-%m-" (time-subtract (current-time) (seconds-to-time a-month-ago))))
-                       (this-month (format-time-string "%Y-%m-" (current-time)))
-                       (subtree-is-current (save-excursion
-                                             (forward-line 1)
-                                             (and (< (point) subtree-end)
-                                                  (re-search-forward (concat last-month "\\|" this-month) subtree-end t)))))
-                  (if subtree-is-current
-                      subtree-end ; Has a date in this month or last month, skip it
-                    nil))  ; available to archive
-              (or subtree-end (point-max)))
-          next-headline))))
-
-  
-  ;;; Section: attachments
-  (setq org-id-method (quote uuidgen))
-
-  
-
-  ;;; Section: exporting
-
-  ;; export to mediawiki
-  (require 'ox-mediawiki)
-
-  
-  ;;; Section: miscellaneous
-
-  (require 'org-checklist)
-
-  ;; disable whitespace mode in org
-  (add-hook 'org-mode-hook (lambda() (whitespace-mode 0)))
-
-  ;; deft for org
-  (install-packages-if-needed 'deft)
-  (setq deft-extension "org")
-  (setq deft-directory org-directory)
-  (setq deft-text-mode 'org-mode)
-  (setq deft-use-filename-as-title t)
-  (global-set-key [f5] 'deft)
-
-  
-  ;;; Section: outro
-
-  (provide 'paolog-org)
-
-  ;;; paolog-org.el ends here
-
 #+end_src
+** Agenda
+  - We keep agenda Org files in =~/org/=
+   #+begin_src emacs-lisp
+     (setq org-agenda-files (quote ("~/org/")))
+     (setq org-default-notes-file "~/org/refile.org")
+   #+end_src
+
+  - Use the diary in the agenda
+    #+begin_src emacs-lisp
+      (setq org-agenda-include-diary t)
+      (setq org-agenda-diary-file "~/org/diary.org")
+    #+end_src
+
+  - Deadlines are set for a month.  They will show up in the agenda 30
+    days before they're through.
+    #+begin_src emacs-lisp
+     (setq org-deadline-warning-days 30)
+    #+end_src
+
+  - What we want displayed in the log mode for the agenda
+    #+begin_src emacs-lisp
+      (setq org-agenda-log-mode-items (quote (closed state)))
+    #+end_src
+
+** Capturing and refiling
+- The default directory for org files (where we should capture to) is =~/org/=
+  #+begin_src emacs-lisp
+    (setq org-directory "~/org")
+  #+end_src
+
+- Define what we can capture, and what template to use for each
+  #+begin_src emacs-lisp
+    (setq org-capture-templates
+          (quote (("t" "todo" entry (file "~/org/inbox.org")
+                   "* TODO %?\n%U\n%a\n")
+                  ("n" "note" entry (file "~/org/notes.org")
+                   "* %? :NOTE:\n%U\n%a\n")
+                  ("m" "Meeting" entry (file "~/org/inbox.org")
+                   "* MEETING with %? Re: %? :MEETING:\n%U")
+                  ("p" "Phone call" entry (file "~/org/refile.org")
+                   "* PHONE %? :PHONE:\n%U"))))
+  #+end_src
+
+- Targets include this file and any file contributing to the agenda - up to 9 levels deep
+  #+begin_src emacs-lisp
+    (setq org-refile-targets (quote ((nil :maxlevel . 9)
+                                     (org-agenda-files :maxlevel . 9))))
+  #+end_src
+
+- We file directly with IDO. We need some settings to make it smooth.
+  #+begin_src emacs-lisp
+    (setq org-refile-use-outline-path t)
+    (setq org-outline-path-complete-in-steps nil)
+    (setq org-refile-allow-creating-parent-nodes (quote confirm))
+    (setq org-completion-use-ido t)
+  #+end_src
+
+- Use the current window for indirect buffer display
+  #+begin_src emacs-lisp
+    (setq org-indirect-buffer-display 'current-window)
+  #+end_src
+
+** Tagging
+
+- Define fast tags
+  #+begin_src emacs-lisp
+    (setq org-tag-alist (quote ((:startgroup)
+                                ("@offline" . ?o)
+                                ("@office" . ?a)
+                                ("@home" . ?h)
+                                (:endgroup)
+                                ("SEATTLE" . ?S)
+                                ("DUBLIN" . ?D)
+                                ("crypt" . ?k))))
+  #+end_src
+
+- Allow setting single tags without the menu
+  #+begin_src emacs-lisp
+    (setq org-fast-tag-selection-single-key (quote expert))
+  #+end_src
+
+** Archiving
+
+- Archive in =~/Documents/archived.org= under a file-based subtree, with status: =ARCHIVED=
+
+#+begin_src emacs-lisp
+  (require 'org-archive)
+  (setq org-archive-mark-done "ARCHIVED")
+  (setq org-archive-location "~/Documents/archived.org::* Archive: %s")
+#+end_src
+
+** Exporting
+
+- Exporting to Mediawiki is useful for wiki drafting
+  #+begin_src emacs-lisp
+    (require 'ox-mediawiki)
+  #+end_src
+
+** Checklists
+   - Enable the checklist magic
+     #+begin_src emacs-lisp
+       (require 'org-checklist)
+     #+end_src
+
+** Deft
+   [[http://jblevins.org/projects/deft/][Deft]] is an Emacs mode for quickly browsing, filtering, and editing
+   directories of plain text notes, inspired by Notational Velocity.
+
+   #+begin_src emacs-lisp
+     (install-packages-if-needed 'deft)
+     (setq deft-extension "org")
+     (setq deft-directory org-directory)
+     (setq deft-text-mode 'org-mode)
+     (setq deft-use-filename-as-title t)
+     (global-set-key [f5] 'deft)
+   #+end_src
+
+** Encryption
+   - Encrypt with a symmetric key all subtrees tagged as =:crypt:= on
+     save.
+     #+begin_src emacs-lisp
+       (require 'org-crypt)
+       (org-crypt-use-before-save-magic)
+       (setq org-tags-exclude-from-inheritance (quote ("crypt")))
+       ;; GPG key to use for encryption
+       ;; Either the Key ID or set to nil to use symmetric encryption.
+       (setq org-crypt-key nil)
+     #+end_src
+
+     - Decrypt entr(y|ies)
+       #+begin_src emacs-lisp
+         (defun org-decrypt-dwim (arg)
+           "Decrypt entry, but decrypt entries if ARG is passed."
+           (interactive "P")
+           (if arg
+               (org-decrypt-entries)
+             (org-decrypt-entry)))
+
+         (add-hook 'org-mode-hook
+                   (lambda ()
+                     (define-key
+                       org-mode-map
+                       (kbd "C-c s-c") 'org-decrypt-dwim)))
+       #+end_src
+
+** Extra links
+    - Make any headline in the same directory made only of a CamelCaseWord a link.
+       #+begin_src emacs-lisp
+         (require 'org-wikinodes)
+         (setq org-wikinodes-scope 'directory)
+       #+end_src
+
+    - On the Mac, get links from external apps (e.g. current selected mail in Outlook, current page in Chrome)
+      #+begin_src emcas-lisp
+      (require 'org-mac-link)
+      (add-hook 'org-mode-hook (lambda ()
+                                 (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
+      #+end_src
