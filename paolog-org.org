@@ -87,16 +87,16 @@ Define the possible stages and transitions, and how they should appear in our bu
 
 #+begin_src emacs-lisp
   (setq org-todo-keywords
-        (quote ((sequence "TODO(t)" "NEXT(n)" "|" "DONE(d)")
-                (sequence "WAITING(w@/!)" "HOLD(h@/!)" "|" "CANCELLED(c@/!)" "PHONE" "MEETING"))))
+        (quote ((sequence "TODO(t)" "PLANNED(n)" "|" "DONE(d)")
+                (sequence "WAITING(w@/!)" "DELEGATED(g@/!)" "|" "CANCELED(c@/!)" "PHONE" "MEETING"))))
 
   (setq org-todo-keyword-faces
         (quote (("TODO" :foreground "red" :weight bold)
-                ("NEXT" :foreground "cyan" :weight bold)
+                ("PLANNED" :foreground "orange" :weight bold)
                 ("DONE" :foreground "forest green" :weight bold)
                 ("WAITING" :foreground "orange" :weight bold)
-                ("HOLD" :foreground "magenta" :weight bold)
-                ("CANCELLED" :foreground "forest green" :weight bold)
+                ("DELEGATED" :foreground "magenta" :weight bold)
+                ("CANCELED" :foreground "forest green" :weight bold)
                 ("MEETING" :foreground "forest green" :weight bold)
                 ("PHONE" :foreground "forest green" :weight bold))))
 #+end_src
@@ -104,7 +104,7 @@ Define the possible stages and transitions, and how they should appear in our bu
   - We keep agenda Org files in =~/org/=
    #+begin_src emacs-lisp
      (setq org-agenda-files (quote ("~/org/")))
-     (setq org-default-notes-file "~/org/refile.org")
+     (setq org-default-notes-file "~/org/inbox.org")
    #+end_src
 
   - Use the diary in the agenda
@@ -139,7 +139,7 @@ Define the possible stages and transitions, and how they should appear in our bu
                    "* %? :NOTE:\n%U\n%a\n")
                   ("m" "Meeting" entry (file "~/org/inbox.org")
                    "* MEETING with %? Re: %? :MEETING:\n%U")
-                  ("p" "Phone call" entry (file "~/org/refile.org")
+                  ("p" "Phone call" entry (file "~/org/inbox.org")
                    "* PHONE %? :PHONE:\n%U"))))
   #+end_src
 
@@ -172,7 +172,9 @@ Define the possible stages and transitions, and how they should appear in our bu
                                 ("@home" . ?h)
                                 (:endgroup)
                                 ("SEATTLE" . ?S)
+                                ("PHONE" . ?T)
                                 ("DUBLIN" . ?D)
+                                ("PROJECT" . ?P)
                                 ("crypt" . ?k))))
   #+end_src
 
@@ -246,15 +248,15 @@ Define the possible stages and transitions, and how they should appear in our bu
        #+end_src
 
 ** Extra links
-    - Make any headline in the same directory made only of a CamelCaseWord a link.
-       #+begin_src emacs-lisp
-         (require 'org-wikinodes)
-         (setq org-wikinodes-scope 'directory)
-       #+end_src
-
     - On the Mac, get links from external apps (e.g. current selected mail in Outlook, current page in Chrome)
       #+begin_src emcas-lisp
       (require 'org-mac-link)
       (add-hook 'org-mode-hook (lambda ()
                                  (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
       #+end_src
+** Journal
+   For journaling we use =org-journal=
+   #+begin_src emacs-lisp
+     (i-require 'org-journal)
+     (setq org-journal-dir "~/Documents/Personal/journal/")
+   #+end_src
