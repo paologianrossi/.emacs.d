@@ -254,16 +254,18 @@ username.  This needs to be done in Customize to work.
 #+end_src
 
 ** Bell
-- The bell is annoying.  If it dings, it bothers the world and me.  If it doesn't (low volume, headphones in, whatever), it's useless.  Here we make it visual by flipping the background quickly.
-#+name: no-ding
-#+begin_src emacs-lisp
-  (setq visible-bell nil)
-  (setq ring-bell-function (apply-partially 'ding-dong "#002200"))
+- The bell is annoying.  If it dings, it bothers the world and me.  If it doesn't (low volume, headphones in, whatever), it's useless.  I'd like to make it visual, but on the Mac, unfortunately, the bell is an ugly white square in the middle of the frame.  Here, we make it less conspicuous by flipping the mode-line.
 
-  (defun ding-dong (color)
-    (let ((original (face-background 'default)))
-      (set-face-background 'default color)
-      (set-face-background 'default original)))
+#+name
+: no-ding
+#+begin_src emacs-lisp
+   (defun my-terminal-visible-bell ()
+     "A friendlier visual bell effect."
+     (invert-face 'mode-line)
+     (run-with-timer 0.1 nil 'invert-face 'mode-line))
+
+   (setq visible-bell nil
+         ring-bell-function 'my-terminal-visible-bell)
 #+end_src
 
 ** Backup files
