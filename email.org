@@ -53,11 +53,10 @@ Let's define some folders.  Note that we use "Exchange-like" names because that'
      (setq mu4e-html2text-command "w3m -T text/html")
 
      (setq mu4e-maildir-shortcuts
-           '( ("/INBOX"       . ?i)
-              ("/Sent Items"  . ?s)
-              ("/Deleted Items"       . ?t)
-              ("/Drafts"      . ?d)))
-
+           '( ("/INBOX"         . ?i)
+              ("/Sent Items"    . ?s)
+              ("/Deleted Items" . ?t)
+              ("/Drafts"        . ?d)))
 
         (add-hook 'mu4e-compose-mode-hook
            (defun my-do-compose-stuff ()
