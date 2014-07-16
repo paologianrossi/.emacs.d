@@ -16,7 +16,7 @@ Once that is all set up, we can call `M-x mu4e` and be happy.
   (setq mail-user-agent 'mu4e-user-agent)
   (setq send-mail-function 'smtpmail-send-it)
   (setq smtpmail-smtp-server smtp-mail-server)
-
+  (setq mu4e-compose-signature nil)
 #+end_src
 
 Let's define some folders.  Note that we use "Exchange-like" names because that's what we got.  Also, we download mail into the ~/Maildir directory.
