@@ -95,13 +95,3 @@ Smartparens is a package that manages and makes it easier to work with sexps.
       (sp-with-modes sp--lisp-modes
         (sp-local-pair "(" nil :bind "C-("))
     #+end_src
-
-*** Org mode
-    #+begin_src emacs-lisp
-      (sp-with-modes '(org-mode)
-        (sp-local-pair "=" "=")
-        (sp-local-pair "~" "~")
-        (sp-local-pair "-" "-")
-        (sp-local-pair "+" "+")
-        )
-    #+end_src
