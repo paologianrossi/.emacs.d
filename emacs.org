@@ -700,61 +700,65 @@ You should probably use that, anyway.
      #+end_src
 
 ** TODO IDO
-#+name: ido
-#+begin_src emacs-lisp
-  (require 'ido)
-  (ido-mode 1)
-  (install-packages-if-needed 'ido-ubiquitous)
-  (i-require 'flx-ido)
-  (flx-ido-mode 1)
-  (setq ido-use-faces nil)
+   #+begin_src emacs-lisp
+     (require 'ido)
+      (ido-mode 1)
+      (install-packages-if-needed 'ido-ubiquitous)
+      (i-require 'flx-ido)
+      (flx-ido-mode 1)
+      (setq ido-use-faces nil)
 
-  (ido-ubiquitous-mode 1)
+      (ido-ubiquitous-mode 1)
 
-  ;; Fix ido-ubiquitous for newer packages
-  (defmacro ido-ubiquitous-use-new-completing-read (cmd package)
-    `(eval-after-load ,package
-       '(defadvice ,cmd (around ido-ubiquitous-new activate)
-          (let ((ido-ubiquitous-enable-compatibility nil))
-            ad-do-it))))
+      ;; Fix ido-ubiquitous for newer packages
+      (defmacro ido-ubiquitous-use-new-completing-read (cmd package)
+        `(eval-after-load ,package
+           '(defadvice ,cmd (around ido-ubiquitous-new activate)
+              (let ((ido-ubiquitous-enable-compatibility nil))
+                ad-do-it))))
 
-  (ido-ubiquitous-use-new-completing-read webjump 'webjump)
-  (ido-ubiquitous-use-new-completing-read yas/expand 'yasnippet)
-  (ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
+      (ido-ubiquitous-use-new-completing-read webjump 'webjump)
+      (ido-ubiquitous-use-new-completing-read yas/expand 'yasnippet)
+      (ido-ubiquitous-use-new-completing-read yas/visit-snippet-file 'yasnippet)
 
- ;; Display ido results vertically, rather than horizontally
-  (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
-  (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
-  (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
-  (defun ido-define-keys () ;; C-n/p is more intuitive in vertical layout
-    (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
-    (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
-  (add-hook 'ido-setup-hook 'ido-define-keys)
+     ;; Display ido results vertically, rather than horizontally
+      (setq ido-decorations (quote ("\n-> " "" "\n   " "\n   ..." "[" "]" " [No match]" " [Matched]" " [Not readable]" " [Too big]" " [Confirm]")))
+      (defun ido-disable-line-truncation () (set (make-local-variable 'truncate-lines) nil))
+      (add-hook 'ido-minibuffer-setup-hook 'ido-disable-line-truncation)
+      (defun ido-define-keys () ;; C-n/p is more intuitive in vertical layout
+        (define-key ido-completion-map (kbd "C-n") 'ido-next-match)
+        (define-key ido-completion-map (kbd "C-p") 'ido-prev-match))
+      (add-hook 'ido-setup-hook 'ido-define-keys)
 
-  (add-hook 'ido-setup-hook
-            (lambda ()
-              ;; Go straight home
-              (define-key ido-file-completion-map
-                (kbd "~")
+      (add-hook 'ido-setup-hook
                 (lambda ()
-                  (interactive)
-                  (if (looking-back "/~")
-                      (insert "/")
-                    (call-interactively 'self-insert-command))))))
+                  ;; Go straight home
+                  (define-key ido-file-completion-map
+                    (kbd "~")
+                    (lambda ()
+                      (interactive)
+                      (if (looking-back "/~")
+                          (insert "/")
+                        (call-interactively 'self-insert-command))))))
 
-  (defun djcb-find-file-as-root ()
-    "Like `ido-find-file, but automatically edit the file with
-           root-privileges (using tramp/sudo), if the file is not writable by
-           user."
-    (interactive)
-    (let ((file (ido-read-file-name "Edit as root: ")))
-      (unless (file-writable-p file)
-        (setq file (concat "/sudo:root@localhost:" file)))
-      (find-file file)))
-  ;; or some other keybinding...
-  (global-set-key (kbd "C-x F") 'djcb-find-file-as-root)
+      (defun djcb-find-file-as-root ()
+        "Like `ido-find-file, but automatically edit the file with
+               root-privileges (using tramp/sudo), if the file is not writable by
+               user."
+        (interactive)
+        (let ((file (ido-read-file-name "Edit as root: ")))
+          (unless (file-writable-p file)
+            (setq file (concat "/sudo:root@localhost:" file)))
+          (find-file file)))
+      ;; or some other keybinding...
+      (global-set-key (kbd "C-x F") 'djcb-find-file-as-root)
+   #+end_src
 
-#+end_src
+   - Use idomenu to navigate within the buffer.  I don't use etags, usually, so I bind =M-.= to this.
+     #+begin_src emacs-lisp
+       (require 'idomenu)
+       (global-set-key (kbd "M-.") 'idomenu)
+     #+end_src
 
 ** SMEX
    Smex is a =M-x= enhancement for Emacs.  It provides a convenient [[*IDO][IDO]] based
