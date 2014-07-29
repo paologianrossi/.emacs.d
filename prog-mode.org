@@ -1,0 +1,15 @@
+* Prog-mode configuration
+
+  In this file, we configure stuff used for general programming and programming modes.
+
+** Highlight current line
+
+- enable hl-line-mode for prog-mode, but only if we're not on the terminal.
+
+#+begin_src emacs-lisp
+  (i-require 'hl-line)
+  (if window-system
+      (set-face-background 'hl-line "Grey60")
+    (add-hook 'prog-mode-hook (lambda () (interactive) (hl-line-mode 1))))
+
+#+end_src

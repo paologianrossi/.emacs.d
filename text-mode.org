@@ -1,0 +1,26 @@
+* Text Modes configuration
+  Here we configure common things for text editing (as opposed to source code editing)
+
+** Specific package requirements
+  #+begin_src emacs-lisp
+    (install-package-if-needed 'auctex)
+    (setq TeX-auto-save t)
+    (setq TeX-parse-self t)
+    (setq-default TeX-master nil)
+
+    (i-require 'markdown-mode)
+  #+end_src
+
+** Visuals
+   #+begin_src emacs-lisp
+     (add-hook 'text-mode-hook (lambda()
+                                 (whitespace-mode 0)
+                                 (visual-line-mode 1)))
+   #+end_src
+
+** Org-mode
+   Org-mode is possibly the best thing on Emacs.  Load my configuration for it.
+
+   #+begin_src emacs-lisp
+     (load-init-file "paolog-org")
+   #+end_src

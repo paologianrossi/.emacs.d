@@ -41,6 +41,7 @@
 
 ** TODO I don't use clocking anymore, but timers are sometimes still nice (esp. for things like interviews, etc.)
    - Need to check the manual
+
 ** Code in Org
    I use source code blocks now and then, especially for my init files.
    Make them easier to use by fontifying the code and making tab (almost) work.
@@ -59,9 +60,7 @@
 *** TODO This should belong to general text modes
    - Whitespace and visual-line modes should be set up right
       #+begin_src emacs-lisp
-        (add-hook 'org-mode-hook (lambda()
-                                   (whitespace-mode 0)
-                                   (visual-line-mode 1)))
+
       #+end_src
 
 ** Basic preferences

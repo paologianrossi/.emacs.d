@@ -959,12 +959,16 @@ You should probably use that, anyway.
      (load-init-file "smartparens")
    #+end_src
 
-** Org-mode
-   Org-mode is possibly the best thing on Emacs.  Load my configuration for it.
+** Text-mode
+   Configuration for editing text (as opposed to source code editing) has its own config file [[file:text-mode.org::*Text%20Modes%20configuration][here]].
    #+begin_src emacs-lisp
-     (load-init-file "paolog-org")
+     (load-init-file "text-mode")
    #+end_src
-
+** Prog-mode
+   Configuration for editing code has its own config file [[file:prog.org::*Prog-mode%20configuration][here]].
+   #+begin_src emacs-lisp
+     (load-init-file "prog-mode")
+   #+end_src
 ** Python-mode
    For Python, I use Elpy.  I think I will make this myself (getting
    inspired from elpy and friends), to refactor out
