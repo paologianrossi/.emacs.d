@@ -928,6 +928,7 @@ You should probably use that, anyway.
    - Load globally the completion snippets
      #+begin_src emacs-lisp
        (i-require 'yasnippet)
+       (yas-load-directory (expand-file-name "snippets/" dotfiles-dir) t)
        (yas-global-mode 1)
        (i-require 'auto-yasnippet)
      #+end_src
@@ -966,9 +967,11 @@ You should probably use that, anyway.
    #+end_src
 ** Prog-mode
    Configuration for editing code has its own config file [[file:prog.org::*Prog-mode%20configuration][here]].
+
    #+begin_src emacs-lisp
      (load-init-file "prog-mode")
    #+end_src
+
 ** Python-mode
    For Python, I use Elpy.  I think I will make this myself (getting
    inspired from elpy and friends), to refactor out
