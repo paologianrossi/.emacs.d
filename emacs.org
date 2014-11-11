@@ -11,7 +11,7 @@ with emacs lisp and I want to set every thing precisely as I mean it.
 You should probably use that, anyway.
 
 ** Caveats
-   + Emacs 24.3 is required.  Higher versions might break, right now.
+   + Emacs 24.3 or higher is required.
    + If on the Mac, use a Cocoa version.  This is mostly for keyboard
      issues on non-US keyboards, but also fullscreen and more works
      better on Cocoa.  I just compile emacs with NS, but you could
@@ -148,9 +148,6 @@ You should probably use that, anyway.
      #+begin_src emacs-lisp
        (add-to-list 'default-frame-alist
                     '(font . "Menlo-14"))
-
-       (set-face-foreground 'powerline-active1 "LightGoldenRod")
-       (set-face-foreground 'powerline-active2 "#770000")
      #+end_src
 
    - Let's remove useless distractions: make cursor a solid, non-blinking block and remove mouse interfaces.
@@ -208,6 +205,8 @@ You should probably use that, anyway.
      #+begin_src emacs-lisp
        (i-require 'powerline)
        (powerline-center-theme)
+       (set-face-foreground 'powerline-active1 "LightGoldenRod")
+       (set-face-foreground 'powerline-active2 "#770000")
      #+end_src
 
    - Yes and no should never be asked graphically (that also makes emacs on the mac explode...)
