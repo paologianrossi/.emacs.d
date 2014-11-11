@@ -698,7 +698,7 @@ You should probably use that, anyway.
        (global-set-key (kbd "s-T") 'multi-term)
      #+end_src
 
-** TODO IDO
+** IDO
    #+begin_src emacs-lisp
      (require 'ido)
       (ido-mode 1)
@@ -906,6 +906,30 @@ You should probably use that, anyway.
 ** Tramp
    With tramp, you can edit remote files as if they were local.
 
+   If you add this to a remote server, in your .zshrc or the like,
+   then magic will happen: ssh to that server from the [[*Terminal][Terminal]]; cd
+   wherever on the remote host in the terminal; =C-x C-f= will show
+   the prefilled path to the right remote directory.
+
+   #+begin_src sh
+     # setup things for emacs-tramp
+     if [ "$TERM" = "xterm-256color" ]; then # You might need to change this depending on your $TERM value
+       precmd() {
+             echo -e "\033AnSiTu" "$LOGNAME" # $LOGNAME is more portable than using whoami.
+             echo -e "\033AnSiTc" "$(pwd)"
+             if [ $(uname) = "SunOS" ]; then
+             # The -f option does something else on SunOS and is not needed anyway.
+                 hostname_options="";
+             else
+                 hostname_options="-f";
+             fi
+             echo -e "\033AnSiTh" "$(hostname $hostname_options)" # Using the -f option can
+                                                                  # cause problems on some OSes.
+         }
+     fi
+   #+end_src
+
+   - Use local-to-var paths for tramp tmp files.
    #+begin_src emacs-lisp
      (setq tramp-persistency-file-name (expand-file-name "tramp" var-dir))
      (setq tramp-auto-save-directory (expand-file-name "tramp-autosave/" var-dir))
