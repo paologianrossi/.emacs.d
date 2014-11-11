@@ -39,9 +39,6 @@
   (global-set-key (kbd "<f8>") 'org-cycle-agenda-files)
 #+end_src
 
-** TODO I don't use clocking anymore, but timers are sometimes still nice (esp. for things like interviews, etc.)
-   - Need to check the manual
-
 ** Code in Org
    I use source code blocks now and then, especially for my init files.
    Make them easier to use by fontifying the code and making tab (almost) work.
@@ -56,12 +53,6 @@
        (require 'org-bullets)
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
      #+end_src
-
-*** TODO This should belong to general text modes
-   - Whitespace and visual-line modes should be set up right
-      #+begin_src emacs-lisp
-
-      #+end_src
 
 ** Basic preferences
    - Can't say a task is done unless all subtasks are already done.
@@ -333,7 +324,7 @@
 
 ** Extra links
     - On the Mac, get links from external apps (e.g. current selected mail in Outlook, current page in Chrome)
-      #+begin_src emcas-lisp
+      #+begin_src emacs-lisp
       (require 'org-mac-link)
       (add-hook 'org-mode-hook (lambda ()
                                  (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
