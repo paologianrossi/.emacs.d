@@ -79,3 +79,4 @@ FILE can be an absolute or relative path to a file.  In case of a relative path,
     (load file)))
 
 (load-init-file "emacs.org")
+(put 'upcase-region 'disabled nil)

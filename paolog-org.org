@@ -86,40 +86,40 @@
 
    | Stage     | Shortcut          | Meaning                                               |
    |-----------+-------------------+-------------------------------------------------------|
-   | TODO      | t                 | This task requires an action                          |
-   | PLANNED   | n ('next' in GTD) | This is planned and will be done                      |
-   | LATER     | l                 | I'm not doing this right now, but I think I will soon |
+   | BACKLOG   | b                 | This task is in my backlog                            |
+   | WEEK      | n ('next' in GTD) | This is planned and will be done in this week         |
+   | TODAY     | t                 | I'm not doing this right now, but I think I will soon |
    | DONE      | d                 | No more action is required.  Think about archiving    |
    | SOMEDAY   | s                 | I'm not planning to do this any time soon             |
    | WAITING   | w                 | Someone or something must get back to me              |
    | DELEGATED | g                 | Someone or something is expected to do this, not me   |
    | CANCELED  | c                 | I thought I had to do this, but not anymore           |
-   | PHONE     | p                 | I need to call someone about this                     |
    | MEETING   | m                 | I'm meeting someone.  This is about it.               |
 
    #+begin_src emacs-lisp
-     (setq org-use-fast-todo-selection t)
-     (setq org-todo-keywords
-           (quote ((sequence "TODO(t)" "PLANNED(n)" "LATER(l)" "|" "DONE(d)" "SOMEDAY(s)")
-                   (sequence "WAITING(w@/!)" "DELEGATED(g@/!)" "|" "CANCELED(c@/!)" "PHONE" "MEETING"))))
+          (setq org-use-fast-todo-selection t)
+          (setq org-todo-keywords
+                (quote ((sequence "|" "BACKLOG(b)")
+                        (sequence "WEEK(n)" "TODAY(t)" "|" "DONE(d)" "SOMEDAY(s)")
+                        (sequence "WAITING(w@/!)" "DELEGATED(g@/!)" "|" "CANCELED(c@/!)" "MEETING(m)"))))
 
-     (setq org-todo-keyword-faces
-           (quote (("TODO" :foreground "red" :weight bold)
-                   ("PLANNED" :foreground "orange" :weight bold)
-                   ("DONE" :foreground "forest green" :weight bold)
-                   ("SOMEDAY" :FOREGROUND "navy blue" :weight bold)
-                   ("WAITING" :foreground "orange" :weight bold)
-                   ("DELEGATED" :foreground "magenta" :weight bold)
-                   ("CANCELED" :foreground "forest green" :weight bold)
-                   ("MEETING" :foreground "forest green" :weight bold)
-                   ("PHONE" :foreground "forest green" :weight bold))))
+          (setq org-todo-keyword-faces
+                (quote (("BACKLOG" :foreground "yellow" :weight bold)
+                        ("WEEK" :foreground "orange" :weight bold)
+                        ("TODAY" :foreground "red" :weight bold)
+                        ("DONE" :foreground "forest green" :weight bold)
+                        ("SOMEDAY" :foreground "navy blue" :weight bold)
+                        ("WAITING" :foreground "orange" :weight bold)
+                        ("DELEGATED" :foreground "magenta" :weight bold)
+                        ("CANCELED" :foreground "forest green" :weight bold)
+                        ("MEETING" :foreground "forest green" :weight bold))))
    #+end_src
 
 ** Agenda
   - We keep agenda Org files in =~/org/=
    #+begin_src emacs-lisp
      (setq org-agenda-files (quote ("~/org/")))
-     (setq org-default-notes-file "~/org/inbox.org")
+     (setq org-default-notes-file "~/org/notes.org")
    #+end_src
 
   - Use the diary in the agenda
@@ -197,22 +197,22 @@
 
    - Define what we can capture, and what template to use for each
 
-     | Template   | Shortcut | Meaning                        |
-     |------------+----------+--------------------------------|
-     | todo       | t        | add a todo action to the inbox |
-     | note       | n        | capture a note (no action)     |
-     | meeting    | m        | capture a meeting's note       |
-     | phone call | p        | capture a phone call's note    |
+     | Template   | Shortcut | Meaning                            |
+     |------------+----------+------------------------------------|
+     | todo       | t        | add a todo action to the todo list |
+     | note       | n        | capture a note (no action)         |
+     | meeting    | m        | capture a meeting's note           |
+     | phone call | p        | capture a phone call's note        |
 
      #+begin_src emacs-lisp
        (setq org-capture-templates
-             (quote (("t" "todo" entry (file "~/org/inbox.org")
-                      "* TODO %?\n%U\n%a\n")
+             (quote (("b" "backlog" entry (file "~/org/todo.org")
+                      "* BACKLOG %?\n%U\n%a\n")
                      ("n" "note" entry (file "~/org/notes.org")
                       "* %? :NOTE:\n%U\n%a\n")
-                     ("m" "Meeting" entry (file "~/org/inbox.org")
-                      "* MEETING with %? Re: %? :MEETING:\n%U")
-                     ("p" "Phone call" entry (file "~/org/inbox.org")
+                     ("m" "Meeting" entry (file "~/org/notes.org")
+                      "* MEETING wrt %? :MEETING:\n%U")
+                     ("p" "Phone call" entry (file "~/org/notes.org")
                       "* PHONE %? :PHONE:\n%U"))))
      #+end_src
 
@@ -236,6 +236,7 @@
      #+end_src
 
 ** TODO Footnotes
+
    - check org-footnote
 
 ** Tagging

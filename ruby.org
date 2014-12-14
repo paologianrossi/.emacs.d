@@ -31,6 +31,16 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (global-set-key (kbd "C-c r a") 'rvm-activate-corresponding-ruby)
    #+end_src
 
+** Bundler integration
+   - Run bundler commands from within Emacs
+     #+begin_src emacs-lisp
+       (i-require 'bundler)
+       (global-set-key (kbd "C-c r b i") 'bundle-install)
+       (global-set-key (kbd "C-c r b u") 'bundle-update)
+       (global-set-key (kbd "C-c r b c") 'bundle-console)
+       (global-set-key (kbd "C-c r b o") 'bundle-open)
+
+     #+end_src
 ** Projectile Rails integration
    We use Projectile for software projects.  Extend it with the specialized =projectile-rails= mode when doing RoR
    #+begin_src emacs-lisp
@@ -52,4 +62,11 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (i-require 'company)
      (global-company-mode t)
      (push 'company-robe company-backends)
+   #+end_src
+** Ruby-dev
+   Pry integration with Emacs
+   #+begin_src emacs-lisp
+     (i-require 'ruby-dev)
+     (autoload 'turn-on-ruby-dev "ruby-dev" nil t)
+     (add-hook 'ruby-mode-hook 'turn-on-ruby-dev)
    #+end_src
