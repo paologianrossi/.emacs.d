@@ -752,7 +752,7 @@ You should probably use that, anyway.
 
    - Use idomenu to navigate within the buffer.  I don't use etags, usually, so I bind =M-.= to this.
      #+begin_src emacs-lisp
-       (require 'idomenu)
+       (i-require 'idomenu)
        (global-set-key (kbd "M-.") 'idomenu)
      #+end_src
 
@@ -941,6 +941,7 @@ You should probably use that, anyway.
    #+begin_src emacs-lisp
      (i-require 'flymake)
      (i-require 'rfringe)
+     (i-require 'flycheck)
      (global-flycheck-mode)
    #+end_src
 
@@ -970,7 +971,7 @@ You should probably use that, anyway.
    Collect statistics on commands etc. to have data for optimizing my
    config. Use =M-x keyfreq-show= to see stats.
    #+begin_src emacs-lisp
-     (require 'keyfreq)
+     (i-require 'keyfreq)
      (keyfreq-mode 1)
      (keyfreq-autosave-mode 1)
    #+end_src
