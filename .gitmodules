@@ -1,6 +1,3 @@
-[submodule "src/mu"]
-	path = src/mu
-	url = https://github.com/paologianrossi/mu.git
 [submodule "src/orgmode-mediawiki"]
 	path = src/orgmode-mediawiki
 	url = https://github.com/craftkiller/orgmode-mediawiki.git
