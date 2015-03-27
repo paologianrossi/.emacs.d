@@ -21,7 +21,6 @@ Once that is all set up, we can call `M-x mu4e` and be happy.
 
 Let's define some folders.  Note that we use "Exchange-like" names because that's what we got.  Also, we download mail into the ~/Maildir directory.
 
-#+name: mu4e-folders
 #+begin_src emacs-lisp
 
     (setq
@@ -33,13 +32,14 @@ Let's define some folders.  Note that we use "Exchange-like" names because that'
 
 #+end_src
 
+Various setups for mu4e
 
 #+begin_src emacs-lisp
      (setq
       mu4e-get-mail-command "offlineimap"   ;; or fetchmail, or ...
-      mu4e-update-interval 300
+      mu4e-update-interval 300              ;; update every 5 minutes
       mu4e-headers-auto-update t
-      )             ;; update every 5 minutes
+      )
 
      (setq mu4e-attachment-dir  "~/Downloads")
 
