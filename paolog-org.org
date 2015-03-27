@@ -50,7 +50,7 @@
 ** Better visuals
    - Use UTF-8 bullets
      #+begin_src emacs-lisp
-       (require 'org-bullets)
+       (i-require 'org-bullets)
        (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
      #+end_src
 
@@ -86,9 +86,9 @@
 
    | Stage     | Shortcut          | Meaning                                               |
    |-----------+-------------------+-------------------------------------------------------|
-   | BACKLOG   | b                 | This task is in my backlog                            |
-   | WEEK      | n ('next' in GTD) | This is planned and will be done in this week         |
-   | TODAY     | t                 | I'm not doing this right now, but I think I will soon |
+   | TODO      | t                 | This task is in my backlog                            |
+   | WEEK      | n ('next' in GTD) | This is planned and will be done in the week          |
+   | TODAY     | y                 | I'm not doing this right now, but I think I will soon |
    | DONE      | d                 | No more action is required.  Think about archiving    |
    | SOMEDAY   | s                 | I'm not planning to do this any time soon             |
    | WAITING   | w                 | Someone or something must get back to me              |
@@ -99,12 +99,12 @@
    #+begin_src emacs-lisp
           (setq org-use-fast-todo-selection t)
           (setq org-todo-keywords
-                (quote ((sequence "|" "BACKLOG(b)")
+                (quote ((sequence "|" "TODO(t)")
                         (sequence "WEEK(n)" "TODAY(t)" "|" "DONE(d)" "SOMEDAY(s)")
                         (sequence "WAITING(w@/!)" "DELEGATED(g@/!)" "|" "CANCELED(c@/!)" "MEETING(m)"))))
 
           (setq org-todo-keyword-faces
-                (quote (("BACKLOG" :foreground "yellow" :weight bold)
+                (quote (("TODO" :foreground "yellow" :weight bold)
                         ("WEEK" :foreground "orange" :weight bold)
                         ("TODAY" :foreground "red" :weight bold)
                         ("DONE" :foreground "forest green" :weight bold)
@@ -206,8 +206,8 @@
 
      #+begin_src emacs-lisp
        (setq org-capture-templates
-             (quote (("b" "backlog" entry (file "~/org/todo.org")
-                      "* BACKLOG %?\n%U\n%a\n")
+             (quote (("t" "todo" entry (file "~/org/todo.org")
+                      "* TODO %?\n%U\n%a\n")
                      ("n" "note" entry (file "~/org/notes.org")
                       "* %? :NOTE:\n%U\n%a\n")
                      ("m" "Meeting" entry (file "~/org/notes.org")
@@ -280,7 +280,7 @@
    - Enable the checklist magic
      - Need to better document this.
      #+begin_src emacs-lisp
-       (require 'org-checklist)
+       (i-require 'org-checklist)
      #+end_src
 
 ** Deft
@@ -299,7 +299,7 @@
    - Encrypt with a symmetric key all subtrees tagged as =:crypt:= on
      save.
      #+begin_src emacs-lisp
-       (require 'org-crypt)
+       (i-require 'org-crypt)
        (org-crypt-use-before-save-magic)
        (setq org-tags-exclude-from-inheritance (quote ("crypt")))
        ;; GPG key to use for encryption
@@ -326,7 +326,7 @@
 ** Extra links
     - On the Mac, get links from external apps (e.g. current selected mail in Outlook, current page in Chrome)
       #+begin_src emacs-lisp
-      (require 'org-mac-link)
+      (i-require 'org-mac-link)
       (add-hook 'org-mode-hook (lambda ()
                                  (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
       #+end_src

@@ -28,7 +28,6 @@
   )
 
 (require 'package)
-
 (package-initialize)
 
 ;; TODO: Check for el-get
