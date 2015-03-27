@@ -4,7 +4,7 @@ Smartparens is a package that manages and makes it easier to work with sexps.
 
 ** Basic setup
     #+begin_src emacs-lisp
-      (i-require 'smartparens)
+      (install-package-if-needed 'smartparens)
       (require 'smartparens-config)
       (smartparens-global-mode 1)
       ;; highlights matching pairs
