@@ -698,6 +698,8 @@ You should probably use that, anyway.
 ** IDO
    #+begin_src emacs-lisp
      (require 'ido)
+     (setq ido-save-directory-list-file (expand-file-name "ido-last" var-dir))
+
       (ido-mode 1)
       (install-packages-if-needed 'ido-ubiquitous)
       (i-require 'flx-ido)

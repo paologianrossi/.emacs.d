@@ -15,5 +15,6 @@
 ** Projectile
    #+begin_src emacs-lisp
      (i-require 'projectile)
+     (setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" var-dir))
      (projectile-global-mode 1)
    #+end_src
