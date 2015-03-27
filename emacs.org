@@ -1009,11 +1009,6 @@ You should probably use that, anyway.
    #+begin_src emacs-lisp
      (load-init-file "ruby")
    #+end_src
-** Email
-   #+begin_src emacs-lisp
-     (load-init-file "email")
-   #+end_src
-
 ** Customize
    Last thing is load customizations.  This goes last to allow user overridings through customize.
    #+begin_src emacs-lisp
