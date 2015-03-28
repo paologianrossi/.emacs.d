@@ -1,0 +1,23 @@
+* Emacs tweaks for the win!
+
+This is my Emacs configuration. It should set up emacs as I like it
+anywhere I need it.
+
+The idea for this configuration (and some of the defuns) are blatantly
+stolen or adapted from the [[https://github.com/eschulte/emacs24-starter-kit/][Emacs Starter Kit]].  The main reason why I
+do this myself instead of using ESK itself is I want to work a bit
+with emacs lisp and I want to set every thing precisely as I mean it.
+You should probably use that, anyway.
+
+** Installation
+
+   Installing this configuration should be simple enough:
+
+   1. Make sure you remove or backup any previous `.emacs.d` directory in your $HOME
+   2. Clone this repo: `$ git clone https://github.com/paologianrossi/.emacs.d.git`
+   3. Move to the cloned repo: `$ cd .emacs.d`
+   4. Setup submodules: `$ git submodule init && git submodule update`
+   5. Launch emacs: `$ emacs`
+
+   Emacs will start and install all required packages. Once everything
+   is done, your newly configured Emacs is ready.
