@@ -14,9 +14,7 @@ You should probably use that, anyway.
    Installing this configuration should be simple enough:
 
    1. Make sure you remove or backup any previous =.emacs.d= directory in your $HOME
-   2. Clone this repo: =$ git clone https://github.com/paologianrossi/.emacs.d.git=
-   3. Move to the cloned repo: =$ cd .emacs.d=
-   4. Setup submodules: =$ git submodule init && git submodule update=
+   2. Clone this repo: =$ git --recursive clone https://github.com/paologianrossi/.emacs.d.git=
    5. Launch emacs: =$ emacs=
 
    Emacs will start and install all required packages. Once everything
