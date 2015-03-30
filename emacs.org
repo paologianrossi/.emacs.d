@@ -983,6 +983,11 @@ You should probably use that, anyway.
      (load-init-file "smartparens")
    #+end_src
 
+** Email
+   Email in Emacs!
+   #+begin_src emacs-lisp
+     (load-init-file "email")
+   #+end_src
 ** Text-mode
    Configuration for editing text (as opposed to source code editing) has its own config file [[file:text-mode.org::*Text%20Modes%20configuration][here]].
    #+begin_src emacs-lisp
