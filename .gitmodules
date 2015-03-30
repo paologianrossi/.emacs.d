@@ -4,3 +4,6 @@
 [submodule "src/org"]
 	path = src/org
 	url = git://orgmode.org/org-mode.git
+[submodule "src/mu"]
+	path = src/mu
+	url = https://github.com/djcb/mu.git
