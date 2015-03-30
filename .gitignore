@@ -11,9 +11,8 @@ build/
 /eshell/
 /eproject.lst
 /var/
-/src/
 /vendor/
-/private/
+/private/*
 /image-dired/
 /backups/
 /.DS_Store
