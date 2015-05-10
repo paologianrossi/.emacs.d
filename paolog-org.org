@@ -99,8 +99,7 @@
    #+begin_src emacs-lisp
           (setq org-use-fast-todo-selection t)
           (setq org-todo-keywords
-                (quote ((sequence "|" "TODO(t)")
-                        (sequence "WEEK(n)" "TODAY(t)" "|" "DONE(d)" "SOMEDAY(s)")
+                (quote ((sequence "TODO(t)" "WEEK(n)" "TODAY(n)" "|" "DONE(d)" "SOMEDAY(s)")
                         (sequence "WAITING(w@/!)" "DELEGATED(g@/!)" "|" "CANCELED(c@/!)" "MEETING(m)"))))
 
           (setq org-todo-keyword-faces
@@ -295,7 +294,7 @@
      (global-set-key [f5] 'deft)
    #+end_src
 
-** Encryption
+** TODO Encryption
    - Encrypt with a symmetric key all subtrees tagged as =:crypt:= on
      save.
      #+begin_src emacs-lisp
