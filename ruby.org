@@ -45,6 +45,7 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
    We use Projectile for software projects.  Extend it with the specialized =projectile-rails= mode when doing RoR
    #+begin_src emacs-lisp
      (i-require 'projectile-rails)
+     (i-require 'rspec-mode)
      (add-hook 'projectile-mode-hook 'projectile-rails-on)
    #+end_src
 
@@ -63,6 +64,17 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (global-company-mode t)
      (push 'company-robe company-backends)
    #+end_src
+
+** Rhtml
+   #+begin_src emacs-lisp
+     (i-require 'rhtml-mode)
+   #+end_src
+** XMP
+#+begin_src emacs-lisp
+  (require 'rcodetools)
+  (define-key ruby-mode-map (kbd "C-c C-c") 'xmp)
+#+end_src
+
 ** Ruby-dev
    Pry integration with Emacs
    #+begin_src emacs-lisp
