@@ -1,6 +1,6 @@
 class VisitorsController < ApplicationController
   def landing
-    render "index", layout: false
+    render "landing", layout: false
   end
 
   def thank_you
