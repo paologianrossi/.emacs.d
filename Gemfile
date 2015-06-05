@@ -15,6 +15,7 @@ gem 'dotenv-rails'
 gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'pg'
+gem 'puma'
 
 group :development do
   gem 'better_errors'

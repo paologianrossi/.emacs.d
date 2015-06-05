@@ -175,6 +175,8 @@ GEM
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
+    puma (2.11.3)
+      rack (>= 1.1, < 2.0)
     quiet_assets (1.1.0)
       railties (>= 3.1, < 5.0)
     rack (1.6.1)
@@ -314,6 +316,7 @@ DEPENDENCIES
   omniauth
   omniauth-facebook
   pg
+  puma
   quiet_assets
   rails (= 4.2.1)
   rails_12factor
