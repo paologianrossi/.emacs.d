@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= content_for?(:title) ? yield(:title) : "Sioola" %></title>
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Sioola" %>">
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
+    <%= stylesheet_link_tag 'landing', media: 'all', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+    <link href="http://fonts.googleapis.com/css?family=Abel|Open+Sans:400,600" rel="stylesheet" />
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+	<div class="container">
+	  <div class="row">
+		<div class="col-md-6 col-md-offset-3 panel panel-default">
+		  <h1 class="margin-base-vertical">Do you love your stash of wraps?</h1>
+		  <p>
+            Your baby loves them. You can't live without them
+            anymore. They hug you together, keep your hands free, make
+            your core strong.
+		  </p>
+		  <p>
+            If you are a babywearing mom (or dad!), you should keep track, and brag about your awesome stash o' wraps!
+		  </p>
+
+		  <p>
+			Do you want the best app for your best wraps?
+		  </p>
+          <div class="margin-base-vertical text-center">
+            <a href="<%= signin_url %>" class="btn btn-lg btn-primary"><%= fa_stacked_icon "facebook", text: "Subscribe with Facebook" %></a>
+          </div>
+
+        </div><!-- //main content -->
+      </div><!-- //row -->
+    </div> <!-- //container -->
+
+  </body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= content_for?(:title) ? yield(:title) : "Sioola" %></title>
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Sioola" %>">
+    <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
+    <%= stylesheet_link_tag 'landing', media: 'all', 'data-turbolinks-track' => true %>
+    <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+    <link href="http://fonts.googleapis.com/css?family=Abel|Open+Sans:400,600" rel="stylesheet" />
+    <%= csrf_meta_tags %>
+  </head>
+  <body>
+	<div class="container">
+	  <div class="row">
+		<div class="col-md-6 col-md-offset-3 panel panel-default">
+		  <h1 class="margin-base-vertical">Welcome to Sioola, <%= @user.first_name %>!</h1>
+		  <p>
+            Thanks for your interest in Sioola, <%= @user.first_name %>!
+		  </p>
+		  <p>
+            We are carefully crafting the greatest app to track and brag about your wrap stash. We will send you an email as soon as it's as good as your wraps deserve.
+		  </p>
+
+		  <p>
+            In the meanwhile, why not share the love? <%= fa_icon "smile-o" %>
+
+		  </p>
+
+		  <div class="margin-base-vertical text-center">
+            <a class="btn btn-md btn-primary" href="https://www.facebook.com/dialog/share?display=popup&href=https://www.sioola.com&app_id=<%= Rails.application.secrets.omniauth_provider_key %>&redirect_uri=<%= request.original_url %>" role="menuitem", tabindex="-1" target="_blank"><%= fa_stacked_icon "facebook", text: "Share!" %></a>
+          </div>
+
+        </div><!-- //main content -->
+      </div><!-- //row -->
+    </div> <!-- //container -->
+
+  </body>
+</html>
