@@ -12,7 +12,7 @@ class User < ActiveRecord::Base
       user.gender = info['gender'] || ""
       user.link = info['link'] ||""
       user.locale = info['locale'] || "en_US"
-      user.image_url = info['image'] || ""
+      user.image_url = info['picture']['data']['url'] || ""
       user.significant_other_uid = info['significant_other_uid'] || ""
     end
   end
