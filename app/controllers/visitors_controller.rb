@@ -1,18 +1,10 @@
 class VisitorsController < ApplicationController
-  def landing
-    if user_signed_in?
-      redirect_to :thank_you
-    else
-      render "landing", layout: false
-    end
+  def homepage
+    render "landing", layout: false
   end
 
   def thank_you
-    if user_signed_in?
-      @user=User.find(session[:user_id])
+      @user=User.find(current_user)
       render "thank_you", layout: false
-    else
-      redirect_to root_url
-    end
   end
 end

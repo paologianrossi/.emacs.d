@@ -9,7 +9,7 @@ class SessionsController < ApplicationController
            User.from_omniauth(auth)
     reset_session
     session[:user_id]=user.id
-    redirect_to thank_you_path
+    redirect_to sioola_root_path
   end
 
   def destroy

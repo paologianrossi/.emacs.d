@@ -19,6 +19,24 @@ img {
 
   }
 
+.user-info {
+    background-color: white;
+    border-radius: 5px;
+    padding: 8px;
+     -webkit-box-shadow: 8px 8px 6px -6px #999;
+    -moz-box-shadow: 8px 8px 6px -6px #999;
+    box-shadow: 8px 8px 6px -6px #999;
+    h1 {
+        font-size: 1.1em;
+        line-height: 3em;
+        img {
+            float: left;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+    }
+}
+
 // THESE ARE EXAMPLES YOU CAN MODIFY
 // create your own classes
 // to make views framework-neutral
@@ -46,6 +64,12 @@ main {
   width: 100%;
   padding-bottom: 80px;
 }
+
+.left-bar {
+    margin-right: 30px;
+    margin-left: 10px;
+}
+
 section {
     @extend .row;
     margin-top: 20px;

@@ -1,0 +1,19 @@
+<div class="row">
+  <aside class="col-md-2 left-bar">
+    <section class="panel user-info">
+      <h1>
+        <img src="<%= current_user.image_url %>" />
+        <%= current_user.first_name %>
+      </h1>
+      <div class="list-group">
+        <a href="#" class="list-group-item"><%= fa_icon "list" %> My stash</a>
+        <a href="#" class="list-group-item"><%= fa_icon "heart-o" %> Favourites</a>
+        <a href="#" class="list-group-item"><%= fa_icon "child" %> Followers</a>
+        <a href="#" class="list-group-item"><%= fa_icon "comment-o" %> Message</a>
+      </ul>
+    </section>
+  </aside>
+  <div class="main-content">
+    <h1>Content</h1>
+  </div>
+</div>

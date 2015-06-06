@@ -1,7 +1,8 @@
 Rails.application.routes.draw do
   resources :users
 
-  root to: 'visitors#landing'
+  root to: 'visitors#homepage', constraints: lambda{ |req| req.session[:user_id].blank? }
+  root to: 'users#homepage', as: :sioola_root
 
   get 'thank_you' => 'visitors#thank_you', as: :thank_you
   get '/auth/:provider/callback' => 'sessions#create'
