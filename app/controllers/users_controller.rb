@@ -1,6 +1,6 @@
 class UsersController < ApplicationController
 
-  before_filter :authenticate_user!
+  before_filter :authenticate_user!, except: [:homepage]
   before_filter :correct_user?, except: [:index, :homepage]
 
   def index
