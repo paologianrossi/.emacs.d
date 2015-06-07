@@ -6,14 +6,14 @@
 feature "Sign in", :omniauth do
   scenario "user can sign in with valid account" do
     signin
-    expect(page).to have_content("Sign out")
+    expect(page).to have_content("Logout")
   end
 
   scenario "user cannot sign in with invalid account" do
-    OmniAuth.config.mock_auth[:twitter] = :invalid_credentials
+    OmniAuth.config.mock_auth[:facebook] = :invalid_credentials
     visit root_path
-    expect(page).to have_content("Sign in")
-    click_link "Sign in"
-    expect(page).to have_content('Authentication error')
+    expect(page).to have_content("Subscribe with Facebook")
+    click_link "Subscribe with Facebook"
+    expect(page).to have_content('Subscribe with Facebook')
   end
 end
