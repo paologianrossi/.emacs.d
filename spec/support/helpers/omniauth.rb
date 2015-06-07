@@ -19,13 +19,11 @@ module Omniauth
                                    "picture" => {
                                      "data" => {
                                        "url" =>  "http://example.com/picture"
-                                     },
-                                     "significant_other" => {
-                                       "id"=>"54321",
-                                       "name"=>"Jane Doe"
-                                     },
-                                     "timezone"=> 1
-                                   }
+                                     }},
+                                   "significant_other" => {
+                                     "id"=>"54321"
+                                   },
+                                   "timezone"=> 1
                                  }
                                }
                              })
