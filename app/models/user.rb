@@ -17,7 +17,7 @@ class User < ActiveRecord::Base
       user.link = info['link'] ||""
       user.locale = info['locale'] || "en_US"
       user.image_url = info['picture']['data']['url'] || ""
-      user.significant_other_uid = info['significant_other_uid'] || ""
+      user.significant_other_uid = info['significant_other']['id'] || ""
     end
   end
 
