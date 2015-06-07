@@ -1,5 +1,9 @@
 class User < ActiveRecord::Base
 
+  validates :email, email: true, presence: true
+  validates :email, email: true, presence: true
+  validates :gender, inclusion: { in: %w(male female), allow_blank: true }
+
   def self.from_omniauth(auth)
     create! do |user|
       user.provider=auth['provider']
