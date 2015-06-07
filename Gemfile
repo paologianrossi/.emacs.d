@@ -16,6 +16,7 @@ gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'pg'
 gem 'puma'
+gem 'email_validator'
 
 group :development do
   gem 'better_errors'
@@ -47,6 +48,7 @@ group :development, :test do
   gem 'byebug'
   gem 'web-console', '~> 2.0'
   gem 'spring'
+  gem 'pry-rails'
 end
 
 group :production do
