@@ -16,6 +16,7 @@ class UsersController < ApplicationController
   end
 
   # GET /users/new
+  # FIXME: removed route
   def new
     @user = User.new
   end
@@ -56,6 +57,7 @@ class UsersController < ApplicationController
 
   # DELETE /users/1
   # DELETE /users/1.json
+  # FIXME: removed route
   def destroy
     @user.destroy
     respond_to do |format|
