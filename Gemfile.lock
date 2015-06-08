@@ -50,6 +50,7 @@ GEM
     bootstrap-sass (3.3.4.1)
       autoprefixer-rails (>= 5.0.0.1)
       sass (>= 3.2.19)
+    bootstrap_form (2.3.0)
     builder (3.2.2)
     byebug (5.0.0)
       columnize (= 0.9.0)
@@ -301,6 +302,7 @@ PLATFORMS
 DEPENDENCIES
   better_errors
   bootstrap-sass
+  bootstrap_form
   byebug
   capybara
   capybara-screenshot
