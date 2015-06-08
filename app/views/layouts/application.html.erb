@@ -16,10 +16,10 @@
       <%= render 'layouts/messages' %>
       <div class="row">
         <aside class="col-md-2 left-bar">
-          <section class="panel user-info">
-            <h1>
+          <section class="user-info">
+            <h1 class="truncate">
               <img src="<%= current_user.image_url %>" />
-              <%= current_user.first_name %>
+              <%= current_user.name %>
             </h1>
             <div class="list-group">
               <a href="#" class="list-group-item"><%= fa_icon "list" %> My stash</a>
@@ -29,9 +29,7 @@
             </div>
           </section>
         </aside>
-        <div class="main-content">
-          <%= yield %>
-        </div>
+        <%= yield %>
       </div>
     </main>
   </body>
