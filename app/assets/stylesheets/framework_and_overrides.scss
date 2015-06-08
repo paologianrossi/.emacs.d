@@ -6,58 +6,57 @@ $navbar-height: 90px;
 @import "bootstrap-sprockets";
 @import "bootstrap";
 
-/* make all images responsive by default */
-img {
-  @extend .img-responsive;
-  margin: 0 auto;
-  }
-/* override for the 'Home' navigation link */
-.navbar-brand {
-    font-size: 3em;
-    font-weight: bold;
-    color: teal;
+/* General */
+section {
+    @extend .row;
+    margin-top: 20px;
+}
 
-  }
+.shadow {
+    -webkit-box-shadow: 8px 8px 6px -6px #999;
+    -moz-box-shadow: 8px 8px 6px -6px #999;
+    box-shadow: 8px 8px 6px -6px #999;
+}
 
-.user-info {
+.box {
+    @extend .shadow;
     background-color: white;
     border-radius: 5px;
     padding: 8px;
-     -webkit-box-shadow: 8px 8px 6px -6px #999;
-    -moz-box-shadow: 8px 8px 6px -6px #999;
-    box-shadow: 8px 8px 6px -6px #999;
-    h1 {
-        font-size: 1.1em;
-        line-height: 3em;
-        img {
-            float: left;
-            margin-left: 10px;
-            margin-right: 10px;
-        }
-    }
+}
+.content {
+    @extend .box;
+    margin-right: 20px;
+    margin-left: 20px;
+    background-color: white;
 }
 
-// THESE ARE EXAMPLES YOU CAN MODIFY
-// create your own classes
-// to make views framework-neutral
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .column {
   @extend .col-md-6;
   @extend .text-center;
   }
+
 .form {
   @extend .col-md-6;
   }
+
 .form-centered {
   @extend .col-md-6;
   @extend .text-center;
   }
+
 .submit {
   @extend .btn;
   @extend .btn-primary;
   @extend .btn-lg;
   }
-// apply styles to HTML elements
-// to make views framework-neutral
+
 main {
   @extend .container;
   height: auto;
@@ -65,16 +64,7 @@ main {
   padding-bottom: 80px;
 }
 
-.left-bar {
-    margin-right: 30px;
-    margin-left: 10px;
-}
-
-section {
-    @extend .row;
-    margin-top: 20px;
-}
-
+/* Make background gradient */
 body, html {
     background-color: rgb(254,255,232);  /* Old browsers */
     $experimental-support-for-svg: true;
@@ -83,15 +73,28 @@ body, html {
     background-repeat: no-repeat;
 }
 
-.navbar {
-    background-color: white;
-    height: 3em;
-     -webkit-box-shadow: 0 8px 6px -6px #999;
-    -moz-box-shadow: 0 8px 6px -6px #999;
-    box-shadow: 0 8px 6px -6px #999;
-
+/* make all images responsive by default */
+img {
+  @extend .img-responsive;
+  margin: 0 auto;
 }
 
+/* Navbar */
+
+/* override for the 'Home' navigation link */
+.navbar {
+    @extend .shadow;
+    background-color: white;
+    height: 3em;
+}
+
+.navbar-brand {
+    font-size: 3em;
+    font-weight: bold;
+    color: teal;
+  }
+
+/* Round user badge */
 .profile-header-container{
     margin: 0 auto;
     text-align: center;
@@ -104,7 +107,27 @@ body, html {
     }
 }
 
- img.img-circle {
+img.img-circle {
     width: 50px;
     height: 50px;
+}
+
+/* Sidebar */
+.user-info {
+    @extend .box;
+    @extend .panel;
+    h1 {
+        font-size: 1.1em;
+        line-height: 3em;
+        img {
+            float: left;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+    }
+}
+
+.left-bar {
+    margin-right: 20px;
+    margin-left: 20px;
 }
