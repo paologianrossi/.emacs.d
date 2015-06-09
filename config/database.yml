@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  pool: 5
+  encoding: unicode
+
+development:
+  <<: *default
+  database: sioola_development
+
+test:
+  <<: *default
+  database: sioola_test
+
+production:
+  <<: *default
+  database: sioola_production
+  username: sioola
+  password: <%= ENV['SIOOLA_DATABASE_PASSWORD'] %>
