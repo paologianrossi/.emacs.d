@@ -11,10 +11,32 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150605212257) do
+ActiveRecord::Schema.define(version: 20150613113816) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "brands", force: :cascade do |t|
+    t.string   "name"
+    t.string   "website"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "slings", force: :cascade do |t|
+    t.integer  "brand_id"
+    t.string   "name"
+    t.integer  "weight"
+    t.string   "colors"
+    t.string   "blend"
+    t.date     "release_date"
+    t.string   "link"
+    t.integer  "status"
+    t.datetime "created_at",   null: false
+    t.datetime "updated_at",   null: false
+  end
+
+  add_index "slings", ["brand_id"], name: "index_slings_on_brand_id", using: :btree
 
   create_table "users", force: :cascade do |t|
     t.string   "provider"
@@ -32,4 +54,5 @@ ActiveRecord::Schema.define(version: 20150605212257) do
     t.string   "significant_other_uid"
   end
 
+  add_foreign_key "slings", "brands"
 end

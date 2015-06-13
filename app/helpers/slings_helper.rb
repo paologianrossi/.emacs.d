@@ -1,0 +1,2 @@
+module SlingsHelper
+end

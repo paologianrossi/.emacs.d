@@ -1,0 +1,44 @@
+<p id="notice"><%= notice %></p>
+
+<p>
+  <strong>Brand:</strong>
+  <%= @sling.brand %>
+</p>
+
+<p>
+  <strong>Name:</strong>
+  <%= @sling.name %>
+</p>
+
+<p>
+  <strong>Weight:</strong>
+  <%= @sling.weight %>
+</p>
+
+<p>
+  <strong>Colors:</strong>
+  <%= @sling.colors %>
+</p>
+
+<p>
+  <strong>Blend:</strong>
+  <%= @sling.blend %>
+</p>
+
+<p>
+  <strong>Release date:</strong>
+  <%= @sling.release_date %>
+</p>
+
+<p>
+  <strong>Link:</strong>
+  <%= @sling.link %>
+</p>
+
+<p>
+  <strong>Status:</strong>
+  <%= @sling.status %>
+</p>
+
+<%= link_to 'Edit', edit_sling_path(@sling) %> |
+<%= link_to 'Back', slings_path %>

@@ -1,0 +1,41 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Listing Slings</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Brand</th>
+      <th>Name</th>
+      <th>Weight</th>
+      <th>Colors</th>
+      <th>Blend</th>
+      <th>Release date</th>
+      <th>Link</th>
+      <th>Status</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @slings.each do |sling| %>
+      <tr>
+        <td><%= sling.brand %></td>
+        <td><%= sling.name %></td>
+        <td><%= sling.weight %></td>
+        <td><%= sling.colors %></td>
+        <td><%= sling.blend %></td>
+        <td><%= sling.release_date %></td>
+        <td><%= sling.link %></td>
+        <td><%= sling.status %></td>
+        <td><%= link_to 'Show', sling %></td>
+        <td><%= link_to 'Edit', edit_sling_path(sling) %></td>
+        <td><%= link_to 'Destroy', sling, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Sling', new_sling_path %>
