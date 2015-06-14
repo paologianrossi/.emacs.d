@@ -1,7 +1,6 @@
 class User < ActiveRecord::Base
 
   validates :email, email: true, presence: true
-  validates :email, email: true, presence: true
   validates :gender, inclusion: { in: %w(male female), allow_blank: true }
 
   def self.from_omniauth(auth)
@@ -17,7 +16,8 @@ class User < ActiveRecord::Base
       user.link = info['link'] ||""
       user.locale = info['locale'] || "en_US"
       user.image_url = info['picture']['data']['url'] || ""
-      user.significant_other_uid = info['significant_other']['id'] || ""
+      significant_other = info['significant_other'] || {}
+      user.significant_other_uid = significant_other['id'] || ""
     end
   end
 

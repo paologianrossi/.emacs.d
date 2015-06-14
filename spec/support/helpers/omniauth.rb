@@ -1,5 +1,4 @@
 module Omniauth
-
   module Mock
     def mock_auth
       OmniAuth::AuthHash.new({
