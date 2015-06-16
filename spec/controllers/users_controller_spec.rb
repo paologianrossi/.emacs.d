@@ -1,8 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe UsersController, type: :controller do
+
   let(:user) { FactoryGirl.create(:user) }
   before {allow(controller).to receive(:current_user) { user }}
+
   describe "GET #index" do
     before { get :index }
     it "assigns all users to @users" do
@@ -39,6 +41,4 @@ RSpec.describe UsersController, type: :controller do
       end
     end
   end
-
-  describe
 end
