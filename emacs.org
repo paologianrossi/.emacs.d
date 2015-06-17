@@ -18,6 +18,12 @@ You should probably use that, anyway.
      also try out [[http://emacsformacosx.com/][Emacs for MacOS X]].
 
 * Implementation
+** Portability
+   - Here we define predicates for platform detection and harmonization.
+     #+begin_src emacs-lisp
+       (defun system-macos-p()
+           (or (string= window-system "ns") (string= window-system "mac")))
+     #+end_src
 ** Defining where to look for things
     - Emacs uses the =load-path= variable to hold a list of paths
       where to look for libraries.  We set this to hold recursively
@@ -157,7 +163,7 @@ You should probably use that, anyway.
    - Remove also the menu, but not on the Mac: it's going to be there
      anyway, so it might as well be full-fledged.
      #+begin_src emacs-lisp
-       (if (or (string= window-system "ns") (string= window-system "mac"))
+       (if (system-macos-p)
            (menu-bar-mode 1)
          (menu-bar-mode 0))
      #+end_src
@@ -455,44 +461,45 @@ You should probably use that, anyway.
 **** Show file in Finder
      #+begin_src elisp
        ;; reveal-in-finder 2014-02-02
-         ;; Original: http://stackoverflow.com/questions/20510333/in-emacs-how-to-show-current-file-in-finder
-         ;; Modified version
-         (defun reveal-in-finder ()
-           (interactive)
-           (let ((path (buffer-file-name))
-                 dir file)
-             (if path
-             ;; if path has been successfully obtained.
-             (progn (setq dir (file-name-directory path))
-                (setq file (file-name-nondirectory path)))
-           ;; if path is empty, there is no file name. Use the default-directory variable
-           (setq dir (expand-file-name default-directory))
-           )
-             ;; (message (concat "Opening in Finder: " dir file))  ; Show the file name
-             (reveal-in-finder-1 dir file)
-             ))
-         ;;
-         (defun reveal-in-finder-1 (dir file)
-           (let ((script
-              (if file
+       ;; Original: http://stackoverflow.com/questions/20510333/in-emacs-how-to-show-current-file-in-finder
+       ;; Modified version
+       (defun reveal-in-finder ()
+         (interactive)
+         (let ((path (buffer-file-name))
+               dir file)
+           (if path
+               ;; if path has been successfully obtained.
+               (progn (setq dir (file-name-directory path))
+                      (setq file (file-name-nondirectory path)))
+             ;; if path is empty, there is no file name. Use the default-directory variable
+             (setq dir (expand-file-name default-directory))
+             )
+           ;; (message (concat "Opening in Finder: " dir file))  ; Show the file name
+           (reveal-in-finder-1 dir file)
+           ))
+       ;;
+       (defun reveal-in-finder-1 (dir file)
+         (let ((script
+                (if file
+                    (concat
+                     "set thePath to POSIX file \"" (concat dir file) "\"\n"
+                     "tell application \"Finder\"\n"
+                     " set frontmost to true\n"
+                     " reveal thePath \n"
+                     "end tell\n"
+                     )
                   (concat
-               "set thePath to POSIX file \"" (concat dir file) "\"\n"
-               "tell application \"Finder\"\n"
-               " set frontmost to true\n"
-               " reveal thePath \n"
-               "end tell\n"
-               )
-                (concat
-                 "set thePath to POSIX file \"" (concat dir) "\"\n"
-                 "tell application \"Finder\"\n"
-                 " set frontmost to true\n"
-                 " reveal thePath \n"
-                 "end tell\n"))))
-             ;; (message script)   ; Show the script in the mini-buffer
-             (start-process "osascript-getinfo" nil "osascript" "-e" script)
-             ))
+                   "set thePath to POSIX file \"" (concat dir) "\"\n"
+                   "tell application \"Finder\"\n"
+                   " set frontmost to true\n"
+                   " reveal thePath \n"
+                   "end tell\n"))))
+           ;; (message script)   ; Show the script in the mini-buffer
+           (start-process "osascript-getinfo" nil "osascript" "-e" script)
+           ))
 
-       (global-set-key (kbd "C-x M-f") 'reveal-in-finder)
+       (if (system-macos-p)
+           (global-set-key (kbd "C-x M-f") 'reveal-in-finder))
      #+end_src
 
 ** Fullscreen
