@@ -247,10 +247,7 @@
                                               ("@office" . ?a)
                                               ("@home" . ?h)
                                               (:endgroup)
-                                              ("1-1" . ?1)
-                                              ("SEATTLE" . ?S)
                                               ("PHONE" . ?T)
-                                              ("DUBLIN" . ?D)
                                               ("PROJECT" . ?P)
                                               ("crypt" . ?k))))
   #+end_src

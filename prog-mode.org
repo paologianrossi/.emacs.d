@@ -18,3 +18,8 @@
      (setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" var-dir))
      (projectile-global-mode 1)
    #+end_src
+** YAML
+   - Add support for YAML files
+   #+begin_src elisp
+     (i-require 'yaml-mode)
+   #+end_src
