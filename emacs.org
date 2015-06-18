@@ -1050,7 +1050,7 @@ You should probably use that, anyway.
      (load-init-file "text-mode")
    #+end_src
 ** Prog-mode
-   Configuration for editing code has its own config file [[file:prog.org::*Prog-mode%20configuration][here]].
+   Configuration for editing code has its own config file [[file:prog-mode.org::*Prog-mode%20configuration][here]].
 
    #+begin_src emacs-lisp
      (load-init-file "prog-mode")
