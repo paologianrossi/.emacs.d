@@ -9,36 +9,35 @@
 ;;; Code:
 
 (defconst dotfiles-dir (file-name-directory (or (buffer-file-name) load-file-name))
-  "The root directory of init files")
+  "The root directory of init files.")
 
 (defconst build-dir (expand-file-name "build/" dotfiles-dir)
   "Where .el files are built and cached.")
 
 (defconst var-dir (expand-file-name "var" dotfiles-dir)
-  "Where files managed by emacs and not supposed to be edited directly are kept")
+  "Where files managed by Emacs and not supposed to be edited directly are kept.")
 
 (defconst elisp-dir (expand-file-name "src" dotfiles-dir)
-  "Where elisp extensions are kept")
+  "Where elisp extensions are kept.")
 
 (defconst vendor-dir (expand-file-name "vendor" dotfiles-dir)
-  "Where non-elisp extensions are kept")
+  "Where non-elisp extensions are kept.")
 
 (defconst private-dir (expand-file-name "private" dotfiles-dir)
-  "This module is untracked by git.  Put private information there"
+  "This module is untracked by git.  Put private information there."
   )
 
 (require 'package)
 (package-initialize)
-
-;; TODO: Check for el-get
 
 (add-to-list 'load-path "~/.emacs.d/src/org/lisp")
 (add-to-list 'load-path "~/.emacs.d/src/org/contrib/lisp" t)
 (require 'org)
 
 (defun load-org-init-file (path file)
-  "Load Emacs Lisp source code blocks in the Org-mode FILE.  This
-function exports the source code using `org-babel-tangle' to
+  "Load Emacs Lisp source code blocks from passed `org-mode' FILE.
+
+This function exports the source code using `org-babel-tangle' to
 PATH directory and then loads the resulting file using
 `load-file'.  Creates PATH if it doesn't exist."
   (let* ((age (lambda (file)
@@ -62,13 +61,19 @@ PATH directory and then loads the resulting file using
 (defun load-init-file (file)
   "Load smartly the init file FILE.
 
-FILE can be:
-  - an Org-mode file path (extension: .org).  In this case, load Emacs Lisp source code blocks in FILE. Store cache .el files in `build-dir`;
-  - an Emacs-lisp file path (extension: .el). In this case, just load FILE;
-  - an extensionless file name. In this case, append '.org' to FILE name and load as Org-mode file.
+   FILE can be:
 
-FILE can be an absolute or relative path to a file.  In case of a relative path, it is rooted on `dotfiles-dir`.
-"
+  - an Org-mode file path (extension: .org).  In this case, load
+    Emacs Lisp source code blocks in FILE.  Store cache .el files
+    in `build-dir`;
+  - an Emacs-lisp file path (extension: .el).  In this case, just
+    load FILE;
+
+  - an extensionless file name.  In this case, append '.org' to FILE
+    name and load as Org-mode file.
+
+FILE can be an absolute or relative path to a file.
+In case of a relative path, it is rooted on `dotfiles-dir`."
   (interactive "fFile:")
   (unless (or (equal "org" (file-name-extension file)) (equal "el" (file-name-extension file)))
     (setq file (concat file ".org")))
@@ -79,3 +84,6 @@ FILE can be an absolute or relative path to a file.  In case of a relative path,
 
 (load-init-file "emacs.org")
 (put 'upcase-region 'disabled nil)
+
+(provide 'init)
+;;; init.el ends here
