@@ -562,7 +562,7 @@ You should probably use that, anyway.
    every time we autosave, and set some sensible thresholds for autosaving.
    #+begin_src emacs-lisp
      (setq
-      auto-save-list-file-prefix "~/.emacs.d/var/auto-save-list/.saves-"
+      auto-save-list-file-prefix (expand-file-name "aut-save-list/.saves-" var-dir)
       auto-save-timeout 10
       auto-save-interval 300)
 
