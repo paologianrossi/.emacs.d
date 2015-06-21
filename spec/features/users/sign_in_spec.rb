@@ -16,4 +16,5 @@ feature "Sign in", :omniauth do
     click_link "Subscribe with Facebook"
     expect(page).to have_content('Subscribe with Facebook')
   end
+
 end
