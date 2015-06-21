@@ -2,6 +2,10 @@ require 'rails_helper'
 
 RSpec.describe Sling, type: :model do
   subject(:sling) { FactoryGirl.build :sling }
+
+  it { should have_many :specimens }
+  it { should have_many :users }
+
   it "has a valid factory" do
     expect(FactoryGirl.build(:sling)).to be_valid
   end

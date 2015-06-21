@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150613113816) do
+ActiveRecord::Schema.define(version: 20150621111018) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -38,6 +38,18 @@ ActiveRecord::Schema.define(version: 20150613113816) do
 
   add_index "slings", ["brand_id"], name: "index_slings_on_brand_id", using: :btree
 
+  create_table "specimen", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "sling_id"
+    t.string   "size"
+    t.integer  "actual_size"
+    t.datetime "created_at",  null: false
+    t.datetime "updated_at",  null: false
+  end
+
+  add_index "specimen", ["sling_id"], name: "index_specimen_on_sling_id", using: :btree
+  add_index "specimen", ["user_id"], name: "index_specimen_on_user_id", using: :btree
+
   create_table "users", force: :cascade do |t|
     t.string   "provider"
     t.string   "uid"
@@ -55,4 +67,6 @@ ActiveRecord::Schema.define(version: 20150613113816) do
   end
 
   add_foreign_key "slings", "brands"
+  add_foreign_key "specimen", "slings"
+  add_foreign_key "specimen", "users"
 end

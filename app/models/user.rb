@@ -3,6 +3,10 @@ class User < ActiveRecord::Base
   validates :email, email: true, presence: true
   validates :gender, inclusion: { in: %w(male female), allow_blank: true }
 
+  has_many :slings, through: :specimens
+  has_many :specimens
+  alias :stash :specimens
+
   def self.from_omniauth(auth)
     create! do |user|
       user.provider=auth['provider']
@@ -28,6 +32,7 @@ class User < ActiveRecord::Base
   def female?
     gender == 'female'
   end
+
 
   def significant_other
     self.class.find_by(uid: significant_other_uid)

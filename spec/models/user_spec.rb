@@ -9,6 +9,10 @@ RSpec.describe User, type: :model do
     it { should respond_to f }
   end
 
+  it { should have_many :slings }
+  it { should have_many :specimens }
+  it { should respond_to :stash }
+
   it "is invalid with a bad email" do
     expect(FactoryGirl.build(:user, email: "foo@example,com")).not_to be_valid
   end
@@ -22,7 +26,6 @@ RSpec.describe User, type: :model do
     it "creates a user from an auth object" do
       expect(user).to be_a User
     end
-
   end
 
   describe "#gender" do

@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   resources :slings
   resources :users, except: [:new]
+  resources :specimens, except: [:index]
 
   root to: 'visitors#homepage', constraints: lambda{ |req| req.session[:user_id].blank? }
   root to: 'users#index', as: :sioola_root
