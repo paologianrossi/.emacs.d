@@ -70,4 +70,69 @@ RSpec.describe UsersController, type: :controller do
       end
     end
   end
+
+  describe "PUT #update" do
+    let(:user) { FactoryGirl.create(:user) }
+
+    context "when the same user is authenticated" do
+      before { allow(controller).to receive(:current_user) { user } }
+
+      context "with valid attributes" do
+        before { put :update, id: user.id, user: FactoryGirl.attributes_for(:user, name: "Long John Silver") }
+        it "locates the requested user" do
+          expect(assigns(:user)).to eq user
+        end
+        it "changes the user's attributes" do
+          user.reload
+          expect(user.name).to eq "Long John Silver"
+        end
+        it "redirects to the changed user" do
+          expect(response).to redirect_to user
+        end
+      end
+
+      context "with invalid attributes" do
+        before { put :update, id: user.id, user: FactoryGirl.attributes_for(:user, email: "foobar") }
+        it "locates the requested user" do
+          expect(assigns(:user)).to eq user
+        end
+        it "does not change the user's attributes" do
+          user.reload
+          expect(user.email).not_to eq "foobar"
+        end
+        it "renders again the edit view" do
+          expect(response).to render_template :edit
+        end
+      end
+    end
+
+    context "when the user is not authenticated" do
+      before { allow(controller).to receive(:current_user).and_return(nil) }
+      it "redirects to /" do
+        put :update, id: user.id, user: FactoryGirl.attributes_for(:user, name: "John Doe")
+        expect(response).to redirect_to root_path
+      end
+    end
+  end
+
+  describe "DELETE #destroy" do
+    let(:user) { FactoryGirl.create(:user) }
+    context "when the same user is authenticated" do
+      before { allow(controller).to receive(:current_user).and_return(user) }
+      it "deletes the contact" do
+        expect { delete :destroy, id: user.id }.to change(User, :count).by(-1)
+      end
+      it "redirects to logging out" do
+        delete :destroy, id: user.id
+        expect(response).to redirect_to signout_path
+      end
+    end
+    context "when the user is not authenticated" do
+      before { allow(controller).to receive(:current_user).and_return(nil) }
+      it "redirects to /" do
+        delete :destroy, id: user.id
+        expect(response).to redirect_to root_path
+      end
+    end
+  end
 end
