@@ -660,6 +660,7 @@ You should probably use that, anyway.
        (define-key window-management-map (kbd "+") 'balance-windows)
        (define-key window-management-map (kbd "f") 'find-file-other-window)
        (define-key window-management-map (kbd "F") 'find-file-other-frame)
+       (define-key window-management-map (kbd "j") 'ace-window)
      #+end_src
 
    - When splitting windows, be able to use =M-[1-9]= to select windows
