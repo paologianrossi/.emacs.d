@@ -1072,6 +1072,14 @@ You should probably use that, anyway.
    #+begin_src emacs-lisp
      (load-init-file "ruby")
    #+end_src
+** Fun
+   Sometimes it's good to have a little fun.
+*** Read XKCD from Emacs
+    call =(xkcd-get-latest)= (=M-x xkcd-get-latest=) for the latest xkcd comic.
+    #+begin_src emacs-lisp
+      (i-require 'xkcd)
+      (setq xkcd-cache-dir (expand-file-name "xkcd/" var-dir))
+    #+end_src
 ** Customize
    Last thing is load customizations.  This goes last to allow user overridings through customize.
    #+begin_src emacs-lisp
