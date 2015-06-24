@@ -627,6 +627,11 @@ You should probably use that, anyway.
            ))
      #+end_src
 
+   - Ace window for fast window selection
+     #+begin_src elisp
+       (i-require 'ace-window)
+     #+end_src
+
    - Window key bindings (note that "window" and "frame" are used in
      the Emacs sense):
 
@@ -644,6 +649,7 @@ You should probably use that, anyway.
      | Balance windows           | =s-w +=      | Usually bound to =C-x +=                                                     |
      | Open file in new window   | =s-w f=      | 'f' for file as in =C-x f=                                                   |
      | Open file in new frame    | =s-w F=      | 'f' for file as in =C-x f=, but capitalized because frames are heavy         |
+     | Jump to window            | =s-w j=      | 'j' for jump                                                                 |
 
      #+begin_src emacs-lisp
        (global-set-key (kbd "M-`") 'other-frame)
@@ -661,13 +667,6 @@ You should probably use that, anyway.
        (define-key window-management-map (kbd "f") 'find-file-other-window)
        (define-key window-management-map (kbd "F") 'find-file-other-frame)
        (define-key window-management-map (kbd "j") 'ace-window)
-     #+end_src
-
-   - When splitting windows, be able to use =M-[1-9]= to select windows
-     #+begin_src emacs-lisp
-       (i-require 'window-number)
-       (window-number-mode 1)
-       (window-number-meta-mode 1)
      #+end_src
 
    - Keep history of windows layouts and undo/redo them with =C-c <left>= and =C-c <right>=
