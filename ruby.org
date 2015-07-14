@@ -2,6 +2,13 @@
 
 Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby editor ever.
 
+** Make all ruby files be ruby
+   #+begin_src emacs-lisp
+     (add-to-list 'auto-mode-alist
+                    '("\\.\\(?:gemspec\\|irbrc\\|gemrc\\|rake\\|rb\\|ru\\|thor\\)\\'" . ruby-mode))
+       (add-to-list 'auto-mode-alist
+                    '("\\(Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
+   #+end_src
 ** Flymake
    Setup flymake for Ruby
    #+begin_src emacs-lisp
@@ -22,6 +29,7 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
    #+begin_src emacs-lisp
      (i-require 'inf-ruby)
      (global-set-key (kbd "C-c r r") 'inf-ruby)
+     (add-hook 'inf-ruby-mode-hook 'kill-buffer-when-shell-command-exit)
    #+end_src
 
 ** RVM integration
@@ -39,13 +47,12 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
        (global-set-key (kbd "C-c r b u") 'bundle-update)
        (global-set-key (kbd "C-c r b c") 'bundle-console)
        (global-set-key (kbd "C-c r b o") 'bundle-open)
-
      #+end_src
+
 ** Projectile Rails integration
    We use Projectile for software projects.  Extend it with the specialized =projectile-rails= mode when doing RoR
    #+begin_src emacs-lisp
      (i-require 'projectile-rails)
-     (i-require 'rspec-mode)
      (add-hook 'projectile-mode-hook 'projectile-rails-on)
    #+end_src
 
@@ -65,15 +72,12 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (push 'company-robe company-backends)
    #+end_src
 
-** Rhtml
+** Rhtml mode
+   This is used in rails.
+
    #+begin_src emacs-lisp
      (i-require 'rhtml-mode)
    #+end_src
-** XMP
-#+begin_src emacs-lisp
-  (require 'rcodetools)
-  (define-key ruby-mode-map (kbd "C-c C-c") 'xmp)
-#+end_src
 
 ** Ruby-dev
    Pry integration with Emacs
@@ -81,4 +85,17 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (i-require 'ruby-dev)
      (autoload 'turn-on-ruby-dev "ruby-dev" nil t)
      (add-hook 'ruby-mode-hook 'turn-on-ruby-dev)
+   #+end_src
+** Ruby tools
+   Ruby tools is a collection of handy functions for Emacs
+   ruby-mode. You can turn a string to symbol, symbol to string,
+   single to double quote string, double to single quote string, clear
+   string, interpolate and more.
+
+   #+begin_src emacs-lisp
+     (i-require 'ruby-tools)
+   #+end_src
+** Rspec mode
+   #+begin_src emacs-lisp
+     (i-require 'rspec-mode)
    #+end_src
