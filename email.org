@@ -11,12 +11,16 @@ Once that is all set up, we can call `M-x mu4e` and be happy.
                          "mu/mu4e" elisp-dir))
     (load-path (append (list mu4e-dir)
                        (or load-path nil))))
-    (require 'mu4e))
+    (require 'mu4e)
+    (require 'org-mu4e)
+    )
 
+  (setq mu4e-mu-binary "/usr/local/bin/mu")
   (setq mail-user-agent 'mu4e-user-agent)
-  (setq send-mail-function 'smtpmail-send-it)
-  (setq smtpmail-smtp-server smtp-mail-server)
+  (setq send-mail-function 'sendmail-send-it)
   (setq mu4e-compose-signature nil)
+  (global-set-key (kbd "C-x M") 'compose-mail)
+  (global-set-key (kbd "C-x m") 'mu4e)
 #+end_src
 
 Let's define some folders.  Note that we use "Exchange-like" names because that's what we got.  Also, we download mail into the ~/Maildir directory.
@@ -35,105 +39,105 @@ Let's define some folders.  Note that we use "Exchange-like" names because that'
 Various setups for mu4e
 
 #+begin_src emacs-lisp
-     (setq
-      mu4e-get-mail-command "offlineimap"   ;; or fetchmail, or ...
-      mu4e-update-interval 300              ;; update every 5 minutes
-      mu4e-headers-auto-update t
-      )
+  (require 'mu4e-contrib)
 
-     (setq mu4e-attachment-dir  "~/Downloads")
+  (setq
+   mu4e-get-mail-command "offlineimap"   ;; or fetchmail, or ...
+   mu4e-update-interval 300              ;; update every 5 minutes
+   mu4e-headers-auto-update t
+   )
 
-     ;; enable inline images
-     (setq mu4e-view-show-images t)
-     ;; use imagemagick, if available
-     (when (fboundp 'imagemagick-register-types)
-       (imagemagick-register-types))
+  (setq mu4e-attachment-dir  "~/Downloads")
 
-     (setq mu4e-view-prefer-html t)
-     (setq mu4e-html2text-command "w3m -T text/html")
 
-     (setq mu4e-maildir-shortcuts
-           '( ("/INBOX"         . ?i)
-              ("/Sent Items"    . ?s)
-              ("/Deleted Items" . ?t)
-              ("/Drafts"        . ?d)))
+  ;; enable inline images
+  (setq mu4e-view-show-images t)
+  ;; use imagemagick, if available
+  (when (fboundp 'imagemagick-register-types)
+    (imagemagick-register-types))
 
-        (add-hook 'mu4e-compose-mode-hook
-           (defun my-do-compose-stuff ()
+  (setq mu4e-view-prefer-html t)
+  (setq mu4e-html2text-command 'mu4e-shr2text)
+  (setq mu4e-maildir-shortcuts
+        '( ("/INBOX"         . ?i)
+           ("/Sent Items"    . ?s)
+           ("/Deleted Items" . ?t)
+           ("/Drafts"        . ?d)))
+
+  (add-hook 'mu4e-compose-mode-hook
+            (defun my-do-compose-stuff ()
               "My settings for message composition."
               (set-fill-column 72)
               (flyspell-mode)))
 
 
-     (setq smtpmail-queue-mail  nil  ;; start in non-queuing mode
-           smtpmail-queue-dir   "~/Maildir/queue/cur")
+  (setq smtpmail-queue-mail  nil  ;; start in non-queuing mode
+        smtpmail-queue-dir   "~/Maildir/queue/cur")
 
-    (setq message-kill-buffer-on-exit t)
+  (setq message-kill-buffer-on-exit t)
 
-   ;;; message view action
-      (defun mu4e-msgv-action-view-in-browser (msg)
-        "View the body of the message in a web browser."
-        (interactive)
-        (let ((html (mu4e-msg-field (mu4e-message-at-point t) :body-html))
-              (tmpfile (format "%s/%d.html" temporary-file-directory (random))))
-          (unless html (error "No html part for this message"))
-          (with-temp-file tmpfile
-          (insert
-              "<html>"
-              "<head><meta http-equiv=\"content-type\""
-              "content=\"text/html;charset=UTF-8\">"
-             html))
-          (browse-url (concat "file://" tmpfile))))
-      (add-to-list 'mu4e-view-actions
-        '("View in browser" . mu4e-msgv-action-view-in-browser) t)
+     ;;; message view action
+  (defun mu4e-msgv-action-view-in-browser (msg)
+    "View the body of the message in a web browser."
+    (interactive)
+    (let ((html (mu4e-msg-field (mu4e-message-at-point t) :body-html))
+          (tmpfile (format "%s/%d.html" temporary-file-directory (random))))
+      (unless html (error "No html part for this message"))
+      (with-temp-file tmpfile
+        (insert
+         "<html>"
+         "<head><meta http-equiv=\"content-type\""
+         "content=\"text/html;charset=UTF-8\">"
+         html))
+      (browse-url (concat "file://" tmpfile))))
+  (add-to-list 'mu4e-view-actions
+               '("View in browser" . mu4e-msgv-action-view-in-browser) t)
 
   (setq mu4e-confirm-quit nil
         mu4e-headers-date-format "%d/%b/%y %H:%M")
 
-  (require 'org-mu4e)
-
+  (setq mu4e-use-fancy-chars t)
 #+end_src
 
 ** Sending email with org-mime
 
 #+begin_src emacs-lisp
+  (i-require 'org-mime)
 
-        (require 'org-mime)
+  (defun send-org-html-mail(arg)
+    "Send html email from Org-mode syntax"
+    (interactive "P")
+    (let ((org-export-with-toc nil)
+          (org-export-with-section-numbers nil)
 
-        (defun send-org-html-mail(arg)
-          "Send html email from Org-mode syntax"
-          (interactive "P")
-          (let ((org-export-with-toc nil)
-                (org-export-with-section-numbers nil)
+          (in-mail-buf (save-excursion
+                         (point-min)
+                         (goto-char (point-min))
+                         (search-forward mail-header-separator nil t))))
+      (if in-mail-buf
+          (progn
+            (org-mime-htmlize arg)
+            (message-send-and-exit))
+        (org-mime-org-buffer-htmlize))))
 
-                (in-mail-buf (save-excursion
-                               (point-min)
-                               (goto-char (point-min))
-                               (search-forward mail-header-separator nil t))))
-            (if in-mail-buf
-                (progn
-                  (org-mime-htmlize arg)
-                  (message-send-and-exit))
-              (org-mime-org-buffer-htmlize))))
+  (add-hook 'message-mode-hook
+            (lambda ()
+              (local-set-key "\C-c\M-o" 'send-org-html-mail)))
 
-      (add-hook 'message-mode-hook
-                (lambda ()
-                  (local-set-key "\C-c\M-o" 'send-org-html-mail)))
+  (add-hook 'org-mode-hook
+            (lambda ()
+              (local-set-key "\C-c\M-o" 'send-org-html-mail)))
 
-      (add-hook 'org-mode-hook
-                (lambda ()
-                  (local-set-key "\C-c\M-o" 'send-org-html-mail)))
+  (add-hook 'org-mime-html-hook
+            (lambda ()
+              (org-mime-change-element-style
+               "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
+                             "#E6E1DC" "#232323"))))
 
-      (add-hook 'org-mime-html-hook
-                (lambda ()
-                  (org-mime-change-element-style
-                   "pre" (format "color: %s; background-color: %s; padding: 0.5em;"
-                                 "#E6E1DC" "#232323"))))
-
-      (add-hook 'org-mime-html-hook
-                (lambda ()
-                  (org-mime-change-element-style
-                   "blockquote" "border-left: 2px solid gray; padding-left: 4px;")))
+  (add-hook 'org-mime-html-hook
+            (lambda ()
+              (org-mime-change-element-style
+               "blockquote" "border-left: 2px solid gray; padding-left: 4px;")))
 
 
   (add-hook 'message-mode-hook 'org-mu4e-compose-org-mode)
