@@ -4,7 +4,7 @@ There are various ways to do email in Emacs.  We use [[http://www.djcbsoftware.n
 
 For that, we have to fetch mail to a local maildir.  We use [[http://offlineimap.org/][Offlineimap]] (but it's really not important what you use).
 
-Once that is all set up, we can call `M-x mu4e` and be happy.
+Once that is all set up, we can call `C-x m` and be happy.
 
 #+begin_src emacs-lisp
   (let* ((mu4e-dir (expand-file-name
