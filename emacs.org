@@ -63,7 +63,7 @@ You should probably use that, anyway.
        (defconst user (getenv "USER"))
      #+end_src
 
-   - Load what is in =./personal/= if it's there.  This is useful to
+   - Load what is in ~./private/~ if it's there.  This is useful to
      avoid having secret stuff leak into public repositories.
 
      #+begin_src emacs-lisp
