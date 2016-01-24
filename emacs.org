@@ -20,10 +20,12 @@ You should probably use that, anyway.
 * Implementation
 ** Portability
    - Here we define predicates for platform detection and harmonization.
+
      #+begin_src emacs-lisp
        (defun system-macos-p()
            (or (string= window-system "ns") (string= window-system "mac")))
      #+end_src
+
 ** Defining where to look for things
     - Emacs uses the =load-path= variable to hold a list of paths
       where to look for libraries.  We set this to hold recursively
@@ -47,13 +49,21 @@ You should probably use that, anyway.
         (setq bookmark-default-file (expand-file-name "bookmarks" var-dir))
       #+end_src
 
+    - On top of emacs specific stuff, we also need to add
+      ~/usr/local/bin~ to the PATH, for better behavior of Emacs in
+      various scenarios.
+
+      #+begin_src emacs-lisp
+        (add-to-list 'exec-path "/usr/local/bin")
+      #+end_src
+
 ** Personal info
    - Figure out my username
      #+begin_src emacs-lisp
        (defconst user (getenv "USER"))
      #+end_src
 
-   - Load what is in =./personal/= if it's there.  This is useful to
+   - Load what is in ~./private/~ if it's there.  This is useful to
      avoid having secret stuff leak into public repositories.
 
      #+begin_src emacs-lisp

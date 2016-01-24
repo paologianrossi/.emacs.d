@@ -156,7 +156,7 @@
               ("o" "Office daily agenda"
                ((agenda "" ((org-agenda-ndays 3)))
                 (tags-todo "+PRIORITY=\"A\"")
-                (tags-todo "@office|AMZN")
+                (tags-todo "@office")
                 (tags "INBOX")
                 (todo "WAITING"))
                ((org-agenda-compact-blocks t)))
