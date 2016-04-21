@@ -117,7 +117,7 @@
 ** Agenda
   - We keep agenda Org files in =~/org/=
    #+begin_src emacs-lisp
-     (setq org-agenda-files (quote ("~/org/")))
+     (setq org-agenda-files (directory-files-recursive "~/org/" "\\.org$"))
      (setq org-default-notes-file "~/org/notes.org")
    #+end_src
 
@@ -272,11 +272,12 @@
        (require 'ox-mediawiki)
      #+end_src
 
-** TODO Checklists
+** TODO
+Checklists
    - Enable the checklist magic
      - Need to better document this.
      #+begin_src emacs-lisp
-       (i-require 'org-checklist)
+;       (i-require 'org-checklist)
      #+end_src
 
 ** Deft

@@ -19,7 +19,7 @@ You should probably use that, anyway.
 
 * Implementation
 ** Portability
-   - Here we define predicates for platform detection and harmonization.
+   Where we define predicates for platform detection and harmonization.
 
      #+begin_src emacs-lisp
        (defun system-macos-p()
@@ -51,7 +51,7 @@ You should probably use that, anyway.
 
     - On top of emacs specific stuff, we also need to add
       ~/usr/local/bin~ to the PATH, for better behavior of Emacs in
-      various scenarios.
+      various scenarios (for example to reach gpg for encryption).
 
       #+begin_src emacs-lisp
         (add-to-list 'exec-path "/usr/local/bin")
@@ -72,33 +72,11 @@ You should probably use that, anyway.
            (load-init-file file)))
      #+end_src
 
-** Server
-   - Emacs server and client are neat.  You can open many emacs
-     windows like instances, but never actually have to reload it.
-     This makes for a snappy experience.  We usually start the server
-     from the shell, by starting emacs with the following line:
-     #+begin_src sh
-       emacsclient -a "" -n -c "$@"
-     #+end_src
-
-   - When we close emacs (=C-x C-c=), only the terminal is actually
-     killed.  If you want to shutdown everything, including the
-     server, use the following command (bound to =C-x r q=, memonic: C-x Really Quit):
-     #+begin_src emacs-lisp
-       (defun server-shutdown ()
-         "Save buffers, Quit, and Shutdown (kill) server"
-         (interactive)
-         (save-some-buffers)
-         (kill-emacs))
-
-       (global-set-key (kbd "C-x r q") 'server-shutdown)
-     #+end_src
-
 ** Packages
    Emacs Packages ELPA is awesome.  However, there are some caveats
    and nuisances.  Here, we try to fix them.
 
-   ELPA packages is the best thing after sliced emacs.  However we want
+   ELPA packages are the best thing after sliced emacs.  However we want
    all good repos set up.
 
    - Setup all useful repositories
@@ -149,6 +127,37 @@ You should probably use that, anyway.
          (install-packages-if-needed package)
          (require feature))
 #+end_src
+
+** Servers
+   - Emacs server and client are neat.  You can open many emacs
+     windows like instances, but never actually have to reload it.
+     This makes for a snappy experience.  We usually start the server
+     from the shell, by starting emacs with the following line:
+     #+begin_src sh
+       emacsclient -a "" -n -c "$@"
+     #+end_src
+
+   - When we close emacs (=C-x C-c=), only the terminal is actually
+     killed.  If you want to shutdown everything, including the
+     server, use the following command (bound to =C-x r q=, memonic: C-x Really Quit):
+     #+begin_src emacs-lisp
+       (defun server-shutdown ()
+         "Save buffers, Quit, and Shutdown (kill) server"
+         (interactive)
+         (save-some-buffers)
+         (kill-emacs))
+
+       (global-set-key (kbd "C-x r q") 'server-shutdown)
+     #+end_src
+
+   - The other interesting thing is using Emacs as an external
+     editor. For example, you can use the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjlafonikaiipfkggjbhkghgicgoh?hl=en][Edit with Emacs]] extension
+     for Chrome to edit text areas in Chrome in Emacs.
+
+    #+begin_src emacs-lisp
+      (i-require 'edit-server)
+      (edit-server-start)
+     #+end_src
 
 ** Visuals
    - My favourite theme, right now, is `tango-dark`.  It comes with
@@ -469,7 +478,7 @@ You should probably use that, anyway.
        (setq mac-right-option-modifier nil)
      #+end_src
 **** Show file in Finder
-     #+begin_src elisp
+     #+begin_src emacs-lisp
        ;; reveal-in-finder 2014-02-02
        ;; Original: http://stackoverflow.com/questions/20510333/in-emacs-how-to-show-current-file-in-finder
        ;; Modified version
@@ -508,8 +517,7 @@ You should probably use that, anyway.
            (start-process "osascript-getinfo" nil "osascript" "-e" script)
            ))
 
-       (if (system-macos-p)
-           (global-set-key (kbd "C-x M-f") 'reveal-in-finder))
+       (global-set-key (kbd "C-x M-f") 'reveal-in-finder)
      #+end_src
 
 ** Fullscreen
@@ -638,7 +646,7 @@ You should probably use that, anyway.
      #+end_src
 
    - Ace window for fast window selection
-     #+begin_src elisp
+     #+begin_src emacs-lisp
        (i-require 'ace-window)
      #+end_src
 
@@ -1052,7 +1060,7 @@ You should probably use that, anyway.
 ** Email
    Email in Emacs!
    #+begin_src emacs-lisp
-     (load-init-file "email")
+;     (load-init-file "email")
    #+end_src
 ** Text-mode
    Configuration for editing text (as opposed to source code editing) has its own config file [[file:text-mode.org::*Text%20Modes%20configuration][here]].
