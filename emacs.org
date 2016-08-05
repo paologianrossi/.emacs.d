@@ -169,7 +169,7 @@ You should probably use that, anyway.
    - The default font (on a Mac) should be Menlo, size 14, for my taste.
      #+begin_src emacs-lisp
        (add-to-list 'default-frame-alist
-                    '(font . "Menlo-14"))
+                    '(font . "Source Code Pro-14"))
      #+end_src
 
    - Let's remove useless distractions: make cursor a solid, non-blinking block and remove mouse interfaces.
