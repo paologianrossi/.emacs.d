@@ -160,7 +160,7 @@ You should probably use that, anyway.
    - The default font (on a Mac) should be Menlo, size 14, for my taste.
      #+begin_src emacs-lisp
        (add-to-list 'default-frame-alist
-                    '(font . "Menlo-14"))
+                    '(font . "Source Code Pro-14"))
      #+end_src
 
    - Let's remove useless distractions: make cursor a solid, non-blinking block and remove mouse interfaces.
@@ -1052,7 +1052,7 @@ You should probably use that, anyway.
 ** Email
    Email in Emacs!
    #+begin_src emacs-lisp
-     (load-init-file "email")
+   ; (load-init-file "email")
    #+end_src
 ** Text-mode
    Configuration for editing text (as opposed to source code editing) has its own config file [[file:text-mode.org::*Text%20Modes%20configuration][here]].
