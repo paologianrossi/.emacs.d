@@ -72,11 +72,12 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (push 'company-robe company-backends)
    #+end_src
 
-** Rhtml mode
-   This is used in rails.
+** Rails
 
    #+begin_src emacs-lisp
      (i-require 'rhtml-mode)
+     (i-require 'scss-mode)
+     (i-require 'haml-mode)
    #+end_src
 
 ** Slim and Haml

@@ -117,7 +117,7 @@
 ** Agenda
   - We keep agenda Org files in =~/org/=
    #+begin_src emacs-lisp
-     (setq org-agenda-files (quote ("~/org/")))
+     (setq org-agenda-files (directory-files-recursive "~/org/" "\\.org$"))
      (setq org-default-notes-file "~/org/notes.org")
    #+end_src
 
@@ -266,17 +266,11 @@
      (setq org-archive-location "~/Documents/archived.org::* Archive: %s")
    #+end_src
 
-** Exporting
-   - Exporting to Mediawiki is useful for wiki drafting.
-     #+begin_src emacs-lisp
-       (require 'ox-mediawiki)
-     #+end_src
-
 ** TODO Checklists
    - Enable the checklist magic
      - Need to better document this.
      #+begin_src emacs-lisp
-       (i-require 'org-checklist)
+;       (i-require 'org-checklist)
      #+end_src
 
 ** Deft
@@ -322,10 +316,17 @@
 ** Extra links
     - On the Mac, get links from external apps (e.g. current selected mail in Outlook, current page in Chrome)
       #+begin_src emacs-lisp
-      (i-require 'org-mac-link)
-      (add-hook 'org-mode-hook (lambda ()
-                                 (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
+        (i-require 'org-mac-link)
+        (add-hook 'org-mode-hook (lambda ()
+                                   (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
+
       #+end_src
+
+     - Get magit links in org-mode
+      #+begin_src emacs-lisp
+        (i-require 'orgit)
+      #+end_src
+
 ** Journal
    For journaling we use =org-journal=.
    #+begin_src emacs-lisp
