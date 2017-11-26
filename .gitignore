@@ -16,3 +16,5 @@ build/
 /image-dired/
 /backups/
 /.DS_Store
+/network-security.data
+xkcd/
