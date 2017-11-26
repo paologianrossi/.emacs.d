@@ -16,7 +16,7 @@ You should probably use that, anyway.
      issues on non-US keyboards, but also fullscreen and more works
      better on Cocoa.  You could try out [[http://emacsformacosx.com/][Emacs for MacOS X]] or use brew:
 
-   `brew install emacs --with-cocoa --with-ctags --with-glib --with-gnutls --with-imagemagick --with-librsvg)`
+   `brew cask install emacs`
 
 * Implementation
 ** Portability
@@ -54,7 +54,8 @@ You should probably use that, anyway.
 
     - On top of emacs specific stuff, we also need to add
       ~/usr/local/bin~ to the PATH, for better behavior of Emacs in
-      various scenarios (for example to reach gpg for encryption).
+      various scenarios (for example to reach brew installed commands,
+      such as gpg for encryption).
 
       #+begin_src emacs-lisp
         (add-to-list 'exec-path "/usr/local/bin")
@@ -66,8 +67,9 @@ You should probably use that, anyway.
        (defconst user (getenv "USER"))
      #+end_src
 
-   - Load what is in ~./private/~ if it's there.  This is useful to
-     avoid having secret stuff leak into public repositories.
+   - Load what is in ~./private/~ if it's there.  Since we gitignore
+     this, that is a useful location to hide secrets that need not to
+     leak to github and such.
 
      #+begin_src emacs-lisp
        (if (file-exists-p private-dir)
@@ -95,8 +97,9 @@ You should probably use that, anyway.
 
    - A small nuisance with ELPA is that it does not know by default what we
      want to install.  Let's make it easier to do this: we define
-     function: =i-require=.  This works mostly as =require=, except it
-     will try to install the package if it cannot be found.
+     the function: =i-require=.  This works mostly as =require=, except it
+     will try to install the package if needed.
+
      #+begin_src emacs-lisp
        (defun package-loadable-p (package)
          "Check if PACKAGE is loadable from a directory in `load-path'."
@@ -132,13 +135,16 @@ You should probably use that, anyway.
      windows like instances, but never actually have to reload it.
      This makes for a snappy experience.  We usually start the server
      from the shell, by starting emacs with the following line:
+
      #+begin_src sh
        emacsclient -a "" -n -c "$@"
      #+end_src
 
    - When we close emacs (=C-x C-c=), only the terminal is actually
      killed.  If you want to shutdown everything, including the
-     server, use the following command (bound to =C-x r q=, memonic: C-x Really Quit):
+     server, use the following command (bound to =C-x r q=, mnemonic:
+     C-x Really Quit):
+
      #+begin_src emacs-lisp
        (defun server-shutdown ()
          "Save buffers, Quit, and Shutdown (kill) server"
@@ -149,9 +155,10 @@ You should probably use that, anyway.
        (global-set-key (kbd "C-x r q") 'server-shutdown)
      #+end_src
 
-   - The other interesting thing is using Emacs as an external
-     editor. For example, you can use the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjlafonikaiipfkggjbhkghgicgoh?hl=en][Edit with Emacs]] extension
-     for Chrome to edit text areas in Chrome in Emacs.
+   - We can also use Emacs as an external editor. For example, you can
+     use the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjlafonikaiipfkggjbhkghgicgoh?hl=en][Edit with Emacs]] extension for Chrome to edit text areas
+     in Chrome in Emacs.
+
     #+begin_src emacs-lisp
       (i-require 'edit-server)
       (edit-server-start)
@@ -159,27 +166,28 @@ You should probably use that, anyway.
 
 ** Visuals
    - My favourite theme, right now, is `tango-dark`.  It comes with
-     Emacs.
+     Emacs, so that's easy.
+
      #+begin_src emacs-lisp
        (load-theme 'tango-dark)
      #+end_src
 
-   - The default font (on a Mac) should be Source Code Pro (available elsewhere), size 14, for my taste.
+   - The default font (on a Mac) should be Source Code Pro (available [[https://github.com/adobe-fonts/source-code-pro][here]]), size 14, for my taste.
+
      #+begin_src emacs-lisp
        (add-to-list 'default-frame-alist
                     '(font . "Source Code Pro-14"))
      #+end_src
 
-   - Let's remove useless distractions: make cursor a solid, non-blinking block and remove mouse interfaces.
+   - Let's remove useless distractions: make cursor a solid,
+     non-blinking block and remove mouse interfaces. Remove also the
+     menu, but not on the Mac: it's going to be there anyway, so it
+     might as well be full-fledged.
+
      #+begin_src emacs-lisp
        (blink-cursor-mode 0)
        (scroll-bar-mode 0)
        (tool-bar-mode 0)
-     #+end_src
-
-   - Remove also the menu, but not on the Mac: it's going to be there
-     anyway, so it might as well be full-fledged.
-     #+begin_src emacs-lisp
        (if (system-macos-p)
            (menu-bar-mode 1)
          (menu-bar-mode 0))
@@ -188,6 +196,7 @@ You should probably use that, anyway.
    - Startup messages are another source of distraction.  Even though
      they happen just once (at startup, duh), we remove them because
      we can.
+
      #+begin_src emacs-lisp
        (setq initial-scratch-message  "")
        (setq inhibit-startup-message t)
@@ -208,6 +217,7 @@ You should probably use that, anyway.
 
    - If we have a title bar, set the frame title to the current file
    (from [[http://emacs-fu.blogspot.co.uk/2011/01/setting-frame-title.html]])
+
    #+begin_src emacs-lisp
      (setq frame-title-format
            '((:eval (if (buffer-file-name)
@@ -216,12 +226,14 @@ You should probably use that, anyway.
    #+end_src
 
    - Use the left fringe to show where the file actually ends
+
      #+begin_src emacs-lisp
        (setq indicate-empty-lines t)
      #+end_src
 
    - When editing in the minibuffer, don't walk on the prompt.
    (from [[http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html]])
+
    #+begin_src emacs-lisp
      (setq minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
    #+end_src
@@ -289,14 +301,23 @@ You should probably use that, anyway.
       (global-set-key (kbd "M-S-v") 'unscroll)
     #+end_src
 
-*** Goto last change
+*** Go to last change
+      | Functionality            | Binding | Mnemonic |
+      |--------------------------+---------+----------|
+      | Goto last change         | C-.     |          |
+      | Goto last change reverse | C-S-.   |          |
+
+    - Sometimes, we move around the buffer to check for something, and then want to go back to where we're editing. Do that with a keystroke.
+
     #+begin_src emacs-lisp
       (i-require 'goto-chg)
       (global-set-key (kbd "C-.") 'goto-last-change)
-      (global-set-key (kbd "C-,") 'goto-last-change-reverse)
+      (global-set-key (kbd "C->") 'goto-last-change-reverse)
     #+end_src
 
 *** Better goto-line
+    - When doing goto-line, show line numbers while choosing the line to go to.
+
    #+begin_src emacs-lisp
      (global-set-key [remap goto-line] 'goto-line-with-feedback)
 
@@ -518,6 +539,7 @@ You should probably use that, anyway.
        (global-set-key (kbd "C-x M-f") 'reveal-in-finder)
      #+end_src
 
+
 ** Fullscreen
    - Cycle to "fullscreen" states without the mouse.  Loop in this order:
      - =normal=
@@ -527,6 +549,7 @@ You should probably use that, anyway.
      - =fullheight=
 
      #+begin_src emacs-lisp
+       (i-require 'writeroom-mode)
        (defun cycle-fullscreen ()
          (interactive)
          (let ((flow '((nil . 'maximized) (maximized . 'fullboth)
@@ -536,6 +559,7 @@ You should probably use that, anyway.
            ))
 
        (global-set-key (kbd "<s-return>") 'cycle-fullscreen)
+       (global-set-key (kbd "<S-s-return>") 'writeroom-mode)
      #+end_src
 
 ** Bell
@@ -606,7 +630,7 @@ You should probably use that, anyway.
      #+end_src
 
 ** TODO Keybindings
-#+name: keybindings
+
 #+begin_src emacs-lisp
   ;; Activate occur easily inside isearch
   (define-key isearch-mode-map (kbd "C-o") 'isearch-occur)
@@ -621,8 +645,6 @@ You should probably use that, anyway.
   (global-set-key (kbd "M-p") 'magit-find-file-completing-read)
 
   ;; terminal-related bindings
-
-  ;; Really quit emacs
 
 #+end_src
 

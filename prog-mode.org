@@ -18,6 +18,7 @@
      (setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" var-dir))
      (projectile-global-mode 1)
    #+end_src
+
 ** Yasnippet minor mode
    #+begin_src emacs-lisp
      (add-hook 'prog-mode-hook
