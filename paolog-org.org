@@ -6,6 +6,7 @@
   I don't use customize for Org because it gets too complicated.
 
 ** Init
+   - Text files should be in org-mode, as well as --obviously-- org files.
    #+begin_src emacs-lisp
      (require 'org-install)
      (add-to-list 'auto-mode-alist '("\\.\\(org\\|org_archive\\|txt\\)$" . org-mode))
@@ -117,7 +118,7 @@
 ** Agenda
   - We keep agenda Org files in =~/org/=
    #+begin_src emacs-lisp
-     (setq org-agenda-files (directory-files-recursive "~/org/" "\\.org$"))
+     (setq org-agenda-files (directory-files-recursively "~/org/" "\\.org$" nil))
      (setq org-default-notes-file "~/org/notes.org")
    #+end_src
 
