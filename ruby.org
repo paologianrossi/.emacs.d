@@ -9,12 +9,14 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
        (add-to-list 'auto-mode-alist
                     '("\\(Capfile\\|Gemfile\\(?:\\.[a-zA-Z0-9._-]+\\)?\\|[rR]akefile\\)\\'" . ruby-mode))
    #+end_src
+
 ** Flymake
    Setup flymake for Ruby
    #+begin_src emacs-lisp
      (i-require 'flymake-ruby)
      (add-hook 'ruby-mode-hook 'flymake-ruby-load)
    #+end_src
+
 
 ** Indentation
    The default indentation system attempts to align the arguments of a
@@ -24,6 +26,7 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (setq ruby-deep-indent-paren nil)
    #+end_src
 
+
 ** Inf Ruby
    Start a Ruby REPL with =C-c r r=
    #+begin_src emacs-lisp
@@ -32,12 +35,14 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (add-hook 'inf-ruby-mode-hook 'kill-buffer-when-shell-command-exit)
    #+end_src
 
+
 ** RVM integration
    Run the correct rvm instance with =C-c r a=
    #+begin_src emacs-lisp
      (i-require 'rvm)
      (global-set-key (kbd "C-c r a") 'rvm-activate-corresponding-ruby)
    #+end_src
+
 
 ** Bundler integration
    - Run bundler commands from within Emacs
@@ -56,6 +61,7 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (add-hook 'projectile-mode-hook 'projectile-rails-on)
    #+end_src
 
+
 ** Robe
    Robe is like Rope but for Ruby
    #+begin_src emacs-lisp
@@ -72,18 +78,11 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (push 'company-robe company-backends)
    #+end_src
 
-** Rails
+** Web templates
+   Useful for web pages in rails etc.
 
    #+begin_src emacs-lisp
      (i-require 'rhtml-mode)
-     (i-require 'scss-mode)
-     (i-require 'haml-mode)
-   #+end_src
-
-** Slim and Haml
-   Useful for web pages in rails
-
-   #+begin_src emacs-lisp
      (i-require 'slim-mode)
      (i-require 'haml-mode)
    #+end_src
@@ -95,6 +94,7 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
      (autoload 'turn-on-ruby-dev "ruby-dev" nil t)
      (add-hook 'ruby-mode-hook 'turn-on-ruby-dev)
    #+end_src
+
 ** Ruby tools
    Ruby tools is a collection of handy functions for Emacs
    ruby-mode. You can turn a string to symbol, symbol to string,
@@ -104,7 +104,14 @@ Ruby is an awesome language.  Here, we configure Emacs to be the best Ruby edito
    #+begin_src emacs-lisp
      (i-require 'ruby-tools)
    #+end_src
+
 ** Rspec mode
    #+begin_src emacs-lisp
      (i-require 'rspec-mode)
+   #+end_src
+
+
+** Rufo
+   #+begin_src emacs-lisp
+     (setq enable-rufo-on-save t)
    #+end_src
