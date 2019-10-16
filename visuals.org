@@ -1,0 +1,97 @@
+* Visuals
+
+** Theme
+   My favourite theme, right now, is `tango-dark`.  It comes with
+   Emacs, so that's easy.
+     #+begin_src emacs-lisp
+       (load-theme 'tango-dark)
+     #+end_src
+
+** Title bar
+   - If we have a title bar, set the frame title to the current file
+   (from [[http://emacs-fu.blogspot.co.uk/2011/01/setting-frame-title.html]])
+   #+begin_src emacs-lisp
+     (setq frame-title-format
+           '((:eval (if (buffer-file-name)
+                        (abbreviate-file-name (buffer-file-name))
+                      "%b"))))
+   #+end_src
+
+** Fonts
+   The default font (on a Mac) should be Source Code Pro (available
+   [[https://github.com/adobe-fonts/source-code-pro][here]]), size 14, for my taste.   Also, use ligatures if possible.
+     #+begin_src emacs-lisp
+       (add-to-list 'default-frame-alist
+                    '(font . "Fira Code-14"))
+       (let ((alist '((33 . ".\\(?:\\(?:==\\|!!\\)\\|[!=]\\)")
+                      (35 . ".\\(?:###\\|##\\|_(\\|[#(?[_{]\\)")
+                      (36 . ".\\(?:>\\)")
+                      (37 . ".\\(?:\\(?:%%\\)\\|%\\)")
+                      (38 . ".\\(?:\\(?:&&\\)\\|&\\)")
+                      (42 . ".\\(?:\\(?:\\*\\*/\\)\\|\\(?:\\*[*/]\\)\\|[*/>]\\)")
+                      (43 . ".\\(?:\\(?:\\+\\+\\)\\|[+>]\\)")
+                      (45 . ".\\(?:\\(?:-[>-]\\|<<\\|>>\\)\\|[<>}~-]\\)")
+                      (46 . ".\\(?:\\(?:\\.[.<]\\)\\|[.=-]\\)")
+                      (47 . ".\\(?:\\(?:\\*\\*\\|//\\|==\\)\\|[*/=>]\\)")
+                      (48 . ".\\(?:x[a-zA-Z]\\)")
+                      (58 . ".\\(?:::\\|[:=]\\)")
+                      (59 . ".\\(?:;;\\|;\\)")
+                      (60 . ".\\(?:\\(?:!--\\)\\|\\(?:~~\\|->\\|\\$>\\|\\*>\\|\\+>\\|--\\|<[<=-]\\|=[<=>]\\||>\\)\\|[*$+~/<=>|-]\\)")
+                      (61 . ".\\(?:\\(?:/=\\|:=\\|<<\\|=[=>]\\|>>\\)\\|[<=>~]\\)")
+                      (62 . ".\\(?:\\(?:=>\\|>[=>-]\\)\\|[=>-]\\)")
+                      (63 . ".\\(?:\\(\\?\\?\\)\\|[:=?]\\)")
+                      (91 . ".\\(?:]\\)")
+                      (92 . ".\\(?:\\(?:\\\\\\\\\\)\\|\\\\\\)")
+                      (94 . ".\\(?:=\\)")
+                      (119 . ".\\(?:ww\\)")
+                      (123 . ".\\(?:-\\)")
+                      (124 . ".\\(?:\\(?:|[=|]\\)\\|[=>|]\\)")
+                      (126 . ".\\(?:~>\\|~~\\|[>=@~-]\\)")
+                      )
+                    ))
+         (dolist (char-regexp alist)
+           (set-char-table-range composition-function-table (car char-regexp)
+                                 `([,(cdr char-regexp) 0 font-shape-gstring]))))
+     #+end_src
+
+
+
+** Distractions
+   Let's remove useless distractions: make cursor a solid,
+   non-blinking block and remove mouse interfaces. Remove also the
+   menu, but not on the Mac: it's going to be there anyway, so it
+   might as well be full-fledged.
+     #+begin_src emacs-lisp
+       (blink-cursor-mode 0)
+       (scroll-bar-mode 0)
+       (tool-bar-mode 0)
+       (if (system-macos-p)
+           (menu-bar-mode 1)
+         (menu-bar-mode 0))
+     #+end_src
+
+** Modeline
+   Powerline is a great mode-line customization.  Use it.
+     #+begin_src emacs-lisp
+       (i-require 'powerline)
+       (powerline-center-theme)
+       (set-face-foreground 'powerline-active1 "LightGoldenRod")
+       (set-face-foreground 'powerline-active2 "#770000")
+     #+end_src
+
+** Bell
+   - The bell is annoying.  If it dings, it bothers the world and me.
+     If it doesn't (low volume, headphones in, whatever), it's
+     useless.  I'd like to make it visual, but on the Mac,
+     unfortunately, the bell is an ugly white square in the middle of
+     the frame.  Here, we make it less conspicuous by flipping the
+     mode-line.
+     #+begin_src emacs-lisp
+       (defun my-terminal-visible-bell ()
+         "A friendlier visual bell effect."
+         (invert-face 'mode-line)
+         (run-with-timer 0.1 nil 'invert-face 'mode-line))
+
+       (setq visible-bell nil
+             ring-bell-function 'my-terminal-visible-bell)
+     #+end_src

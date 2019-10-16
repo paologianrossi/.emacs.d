@@ -1,0 +1,55 @@
+* Git
+  Here we configure Emacs for Git.
+
+  Magit is the best way to manage git repositories from emacs.
+
+  Switching to Magit will open the status window as the only window
+  in the frame.  Quitting will restore windows.
+
+  #+begin_src emacs-lisp
+    (i-require 'magit)
+    (i-require 'magit-find-file)
+
+    (defadvice magit-status (around magit-fullscreen activate)
+      (window-configuration-to-register :magit-fullscreen)
+      ad-do-it
+      (delete-other-windows))
+
+    (global-set-key (kbd "C-x g") 'magit-status)
+
+    (defun magit-quit-session ()
+      "Restores the previous window configuration and kills the magit buffer"
+      (interactive)
+      (kill-buffer)
+      (jump-to-register :magit-fullscreen))
+
+    (defun magit-toggle-whitespace ()
+      (interactive)
+      (if (member "-w" magit-diff-options)
+          (magit-dont-ignore-whitespace)
+        (magit-ignore-whitespace)))
+
+    (defun magit-ignore-whitespace ()
+      (interactive)
+      (add-to-list 'magit-diff-options "-w")
+      (magit-refresh))
+
+    (defun magit-dont-ignore-whitespace ()
+      (interactive)
+      (setq magit-diff-options (remove "-w" magit-diff-options))
+      (magit-refresh))
+
+    (define-key magit-status-mode-map (kbd "W") 'magit-toggle-whitespace)
+
+    (defun magit-just-amend ()
+      (interactive)
+      (save-window-excursion
+        (magit-with-refresh
+         (shell-command "git --no-pager commit --amend --reuse-message=HEAD"))))
+
+    (eval-after-load "magit"
+      '(define-key magit-status-mode-map (kbd "C-c C-a") 'magit-just-amend))
+
+    (global-set-key (kbd "C-x f") 'magit-find-file-completing-read)
+
+  #+end_src

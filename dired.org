@@ -1,0 +1,89 @@
+* Dired
+Dired makes an Emacs buffer containing a listing of a directory, and
+optionally some of its subdirectories as well. You can use the normal
+Emacs commands to move around in this buffer, and special Dired
+commands to operate on the listed files.
+
+We configure it here.
+
+#+begin_src emacs-lisp
+  (require 'dired)
+  (require 'dired-x)
+
+  (when (system-macos-p)
+    (require 'ls-lisp)
+    (setq ls-lisp-use-insert-directory-program nil))
+
+  (setq-default dired-details-hidden-string "--- ")
+
+  (setq
+   dired-omit-verbose t
+   dired-dwim-target t
+   dired-recursive-copies 'top
+   dired-recursive-deletes 'top
+   )
+
+   (add-hook 'dired-mode-hook
+      (lambda ()
+        (dired-hide-details-mode)
+        ))
+
+  (setq dired-omit-files "^\\..*$\\|^\\.\\.$")
+  (setq dired-omit-mode t)
+
+  (defun dired-back-to-top ()
+    (interactive)
+    (beginning-of-buffer)
+    (dired-next-line 4))
+
+  (define-key dired-mode-map
+    (vector 'remap 'beginning-of-buffer) 'dired-back-to-top)
+
+  (define-key dired-mode-map
+    (kbd "e")
+    (lambda () (interactive)
+      (dired-do-shell-command "open" nil (dired-get-marked-files))))
+
+  (defun dired-jump-to-bottom ()
+    (interactive)
+    (end-of-buffer)
+    (dired-next-line -1))
+
+  (define-key dired-mode-map
+    (vector 'remap 'end-of-buffer) 'dired-jump-to-bottom)
+
+  (defun dired-back-to-start-of-files ()
+    (interactive)
+    (backward-char (- (current-column) 2)))
+
+  (define-key dired-mode-map (kbd "C-a") 'dired-back-to-start-of-files)
+  ;; Always copy/delete recursively
+  (setq dired-recursive-copies (quote always))
+  (setq dired-recursive-deletes (quote top))
+
+  ;; Auto refresh dired, but be quiet about it
+  (setq global-auto-revert-non-file-buffers t)
+  (setq auto-revert-verbose nil)
+
+  ;; List directories first
+  (defun sof/dired-sort ()
+    "Dired sort hook to list directories first."
+    (save-excursion
+      (let (buffer-read-only)
+        (forward-line 2) ;; beyond dir. header
+        (sort-regexp-fields t "^.*$" "[ ]*." (point) (point-max))))
+    (and (featurep 'xemacs)
+         (fboundp 'dired-insert-set-properties)
+         (dired-insert-set-properties (point-min) (point-max)))
+    (set-buffer-modified-p nil))
+
+  (add-hook 'dired-after-readin-hook 'sof/dired-sort)
+
+  ;; Automatically create missing directories when creating new files
+  (defun my-create-non-existent-directory ()
+    (let ((parent-directory (file-name-directory buffer-file-name)))
+      (when (and (not (file-exists-p parent-directory))
+                 (y-or-n-p (format "Directory `%s' does not exist! Create it?" parent-directory)))
+        (make-directory parent-directory t))))
+  (add-to-list 'find-file-not-found-functions #'my-create-non-existent-directory)
+ #+end_src

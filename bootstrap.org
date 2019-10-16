@@ -1,0 +1,152 @@
+* Configuration bootstrap
+  Bootstrap the configuration.
+
+  *You should not remove this file from the setup. Many things depend on this.*
+
+  This section is for bootstrapping the setup. It holds various
+  settings that are specific to the configuration system, rather than
+  providing features or changing behaviours.
+
+** Platform
+   - I generally use Emacs on an Apple laptop, but occasionally might
+     want to set it up on a GNU/Linux box. Here's a predicate for "are
+     we on a Mac".
+   #+begin_src emacs-lisp
+     (defun system-macos-p()
+       (or (string= window-system "ns") (string= window-system "mac")))
+   #+end_src
+
+** Paths
+    - Emacs uses the =load-path= variable to hold a list of paths
+      where to look for libraries.  We set this to hold recursively
+      =elisp-dir=, to be able to load extensions we downloaded not
+      using [[http://www.emacswiki.org/emacs/ELPA][ELPA]].  We also want to be able to load packages installed
+      through ELPA, but this is taken care of [[*ELPA][elsewhere]].
+
+      #+begin_src emacs-lisp
+        (add-to-list 'load-path elisp-dir)
+        (when (file-exists-p elisp-dir)
+          (let ((default-directory elisp-dir))
+            (normal-top-level-add-subdirs-to-load-path)))
+      #+end_src
+
+    - Various packages need to generate files not for human
+      consumption.  We store them in their own directory, =var-dir= to
+      avoid cluttering our configs.
+      #+begin_src emacs-lisp
+        (setq autoload-file (expand-file-name "loaddefs.el" var-dir))
+        (setq custom-file (expand-file-name "custom.el" var-dir))
+        (setq abbrev-file-name (expand-file-name "abbrev_defs" var-dir))
+        (setq bookmark-default-file (expand-file-name "bookmarks" var-dir))
+      #+end_src
+
+    - On top of emacs specific stuff, we also need to add
+      ~/usr/local/bin~ to the PATH, for better behavior of Emacs in
+      various scenarios (for example to reach brew installed commands,
+      such as gpg for encryption).
+
+      #+begin_src emacs-lisp
+        (add-to-list 'exec-path "/usr/local/bin")
+      #+end_src
+
+** ELPA
+   Emacs Packages (ELPA) are awesome.  However, there are some caveats
+   and nuisances.  Here, we try to fix them.
+
+   - Setup all useful repositories
+     #+begin_src emacs-lisp
+       (require 'package)
+
+       (setq package-archives
+             '(("gnu"         . "http://elpa.gnu.org/packages/")
+               ("org"         . "http://orgmode.org/elpa/")
+               ("melpa"       . "http://melpa.milkbox.net/packages/")
+               ("marmalade"   . "http://marmalade-repo.org/packages/")
+               ("elpy"        . "http://jorgenschaefer.github.io/packages/")))
+
+       (package-initialize)
+     #+end_src
+
+   - A small nuisance with ELPA is that it does not know by default what we
+     want to install.  Let's make it easier to do this: we define
+     the function: =i-require=.  This works mostly as =require=, except it
+     will try to install the package if needed.
+
+     #+begin_src emacs-lisp
+       (defun package-loadable-p (package)
+         "Check if PACKAGE is loadable from a directory in `load-path'."
+         (let ((load-file (concat (symbol-name package) ".el")))
+           (catch 'file-found
+             (dolist (dir load-path)
+               (let ((path (expand-file-name load-file dir)))
+                 (when (file-exists-p path)
+                   (throw 'file-found path)))))))
+
+       (defun install-packages-if-needed (&rest packages)
+         "Install PACKAGES using ELPA if they are not loadable or installed locally."
+         (when packages
+           (unless package-archive-contents
+             (package-refresh-contents))
+           (dolist (package packages)
+             (unless (or (package-loadable-p package)
+                         (package-installed-p package))
+               (package-install package)))))
+
+       (defalias 'install-package-if-needed 'install-packages-if-needed)
+
+       (defun i-require (feature &optional package)
+         "Require FEATURE.  If needed, try first to install PACKAGE from ELPA.
+       If PACKAGE is not specified, FEATURE is used also as the package name."
+         (setq package (or package feature))
+         (install-packages-if-needed package)
+         (require feature))
+#+end_src
+
+** Personal info
+   - Figure out my username
+     #+begin_src emacs-lisp
+       (defconst user (getenv "USER"))
+     #+end_src
+
+   - Load what is in ~./private/~ if it's there.  Since we gitignore
+     this, that is a useful location to hide secrets that need not to
+     leak to github and such.
+     #+begin_src emacs-lisp
+       (if (file-exists-p private-dir)
+         (dolist (file (directory-files private-dir t "\.\\(el\\|org\\)$"))
+           (load-init-file file)))
+     #+end_src
+
+** Servers
+   - Emacs server and client are neat.  You can open many emacs
+     windows like instances, but never actually have to reload it.
+     This makes for a snappy experience.  We usually start the server
+     from the shell, by starting emacs with the following line:
+
+     #+begin_src sh
+       emacsclient -a "" -n -c "$@"
+     #+end_src
+
+   - When we close emacs (=C-x C-c=), only the terminal is actually
+     killed.  If you want to shutdown everything, including the
+     server, use the following command (bound to =C-x r q=, mnemonic:
+     C-x Really Quit):
+
+     #+begin_src emacs-lisp
+       (defun server-shutdown ()
+         "Save buffers, Quit, and Shutdown (kill) server"
+         (interactive)
+         (save-some-buffers)
+         (kill-emacs))
+
+       (global-set-key (kbd "C-x r q") 'server-shutdown)
+     #+end_src
+
+   - We can also use Emacs as an external editor. For example, you can
+     use the [[https://chrome.google.com/webstore/detail/edit-with-emacs/ljobjlafonikaiipfkggjbhkghgicgoh?hl=en][Edit with Emacs]] extension for Chrome to edit text areas
+     in Chrome in Emacs.
+
+    #+begin_src emacs-lisp
+      (i-require 'edit-server)
+      (edit-server-start)
+     #+end_src

@@ -1,0 +1,44 @@
+* Keeping state
+** Backup files and autosave
+   Emacs backs everything up.  By default, backup files are those
+   annoying suffixed-in-~ files you find in the original file's
+   directory.  Here we configure backups to be better behaved than
+   default, without disabling them as they're actually pretty useful.
+   #+begin_src emacs-lisp
+     (setq
+      backup-directory-alist `(("." . ,(expand-file-name
+                                        (concat user-emacs-directory "backups"))))
+      backup-by-copying t
+      delete-old-versions t
+      kept-new-versions 20
+      kept-old-versions 2
+      vc-make-backup-files t
+      version-control t)
+   #+end_src
+
+   Auto-saves are a totally different beast.  They're even more useful
+   than backups when it hits the fan.  Since they are not to be used
+   by humans, we store them in =var-dir=.  Also, we trigger a backup
+   every time we autosave, and set some sensible thresholds for autosaving.
+   #+begin_src emacs-lisp
+     (setq
+      auto-save-list-file-prefix (expand-file-name "aut-save-list/.saves-" var-dir)
+      auto-save-timeout 10
+      auto-save-interval 300)
+
+     (add-hook 'auto-save-hook (lambda () (setq buffer-backed-up nil)))
+   #+end_src
+
+** Save places
+   - Remember where we left off for each file.  When we reopen the file, bring us to the right place.
+     #+begin_src emacs-lisp
+       (require 'saveplace)
+       (setq-default save-place t)
+       (setq save-place-file (expand-file-name "saved-places" var-dir))
+     #+end_src
+
+** Auto-reverting
+   - If a file changes on disk, refresh it in emacs too.
+     #+begin_src emacs-lisp
+       (global-auto-revert-mode 1)
+     #+end_src

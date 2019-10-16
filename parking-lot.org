@@ -1,0 +1,14 @@
+* TODO Autocomplete
+#+name: autocomplete
+#+begin_src emacs-lisp
+
+  (i-require 'auto-complete)
+  (require 'auto-complete-config)
+  (setq ac-ignore-case nil)
+  (setq ac-comphist-file (expand-file-name "ac-comphist.dat" var-dir))
+  (setq-default ac-sources '(ac-source-abbrev
+                             ac-source-dictionary
+                             ac-source-words-in-same-mode-buffers))
+  (ac-config-default)
+  (global-auto-complete-mode t)
+#+end_src

@@ -86,7 +86,7 @@ Smartparens is a package that manages and makes it easier to work with sexps.
 
 *** HTML mode
     #+begin_src emacs-lisp
-      (sp-with-modes '(html-mode sgml-mode)
+      (sp-with-modes '(html-mode sgml-mode rhtml-mode)
         (sp-local-pair "<" ">"))
     #+end_src
 

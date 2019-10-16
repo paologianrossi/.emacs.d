@@ -1,0 +1,130 @@
+* Prog-mode configuration
+
+  In this file, we configure stuff used for general programming and
+  programming modes.
+
+** VCS
+   In this section, we set up Emacs to be good at version control. I
+   basically only use Git right now, so that's what I configure it
+   for.
+   #+begin_src emacs-lisp
+     (load-init-file "prog/git")
+   #+end_src
+
+** Auto-revert log files
+   Auto-revert mode is the Emacs version of =tail -f=, with the added
+   emacs gravy (like searching, easy yanking, etc).
+  #+begin_src emacs-lisp
+    (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
+  #+end_src
+
+** Highlight current line
+   - enable hl-line-mode for prog-mode, but only if we're not on the terminal.
+     #+begin_src emacs-lisp
+       (i-require 'hl-line)
+       (if window-system
+           (progn (set-face-background 'hl-line "Grey60")
+                  (add-hook 'prog-mode-hook (lambda () (interactive) (hl-line-mode 1)))))
+
+     #+end_src
+
+** Auto-complete
+   #+begin_src emacs-lisp
+     (i-require 'auto-complete)
+     (ac-config-default)
+     (setq ac-ignore-case nil)
+   #+end_src
+
+** Ivy
+   #+begin_src emacs-lisp
+     (package-install 'counsel)
+     (ivy-mode)
+     (setq ivy-use-selectable-prompt t)
+     (setq ivy-use-virtual-buffers t)
+     (setq ivy-count-format "(%d/%d) ")
+
+     ; swap ivy-done and ivy-alt-done
+     (with-eval-after-load 'counsel
+       (let ((done (where-is-internal #'ivy-done     ivy-minibuffer-map t))
+             (alt  (where-is-internal #'ivy-alt-done ivy-minibuffer-map t)))
+         (define-key ivy-minibuffer-map done #'ivy-alt-done)
+         (define-key counsel-find-file-map done #'ivy-alt-done)
+         (define-key ivy-minibuffer-map alt  #'ivy-done)
+         (define-key counsel-find-file-map alt #'ivy-done)))
+   #+end_src
+
+   - IMenu is cool, we can navigate in the buffer's sections with it. I use the counsel version for it.
+     #+begin_src emacs-lisp
+       (global-set-key (kbd "M-i") 'counsel-imenu)
+       (global-set-key "\C-s" 'swiper)
+       (global-set-key (kbd "C-c C-r") 'ivy-resume)
+       (global-set-key (kbd "M-x") 'counsel-M-x)
+       (global-set-key (kbd "C-x C-f") 'counsel-find-file)
+       (global-set-key (kbd "C-h f") 'counsel-describe-function)
+       (global-set-key (kbd "C-h v") 'counsel-describe-variable)
+       (global-set-key (kbd "C-h l") 'counsel-find-library)
+       (global-set-key (kbd "C-h i") 'counsel-info-lookup-symbol)
+       (global-set-key (kbd "C-h u") 'counsel-unicode-char)
+       (global-set-key (kbd "C-c g") 'counsel-git)
+       (global-set-key (kbd "C-c j") 'counsel-git-grep)
+       (global-set-key (kbd "C-c k") 'counsel-ag)
+       (global-set-key (kbd "C-x l") 'counsel-locate)
+       (define-key minibuffer-local-map (kbd "C-r") 'counsel-minibuffer-history)
+
+     #+end_src
+
+** Projectile
+   #+begin_src emacs-lisp
+     (i-require 'projectile)
+     (setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" var-dir))
+     (projectile-global-mode 1)
+     (setq projectile-enable-caching t)
+     (global-set-key (kbd "s-p") 'projectile-find-file)
+     (global-set-key (kbd "s-d") 'projectile-find-dir)
+     (global-set-key (kbd "s-b") 'projectile-switch-to-buffer)
+   #+end_src
+
+** YASnippet
+   #+begin_src emacs-lisp
+     (i-require 'yasnippet)
+     (i-require 'yasnippet-snippets)
+     (yas-global-mode t)
+   #+end_src
+
+** Smartparens
+   #+begin_src emacs-lisp
+     (load-init-file "prog/smartparens")
+   #+end_src
+
+** FlyMake
+   FlyMake performs on-the-fly syntax checks on the files being edited
+   using the external syntax check tool (usually the
+   compiler). Highlights erroneous lines and displays associated error
+   messages.
+
+   #+begin_src emacs-lisp
+     (i-require 'flymake)
+     (i-require 'rfringe)
+     (i-require 'flycheck)
+     (global-flycheck-mode)
+   #+end_src
+
+** Smartscan
+   If you have your cursor on a symbol, smartscan will allow you to jump
+   to the next and previous symbols matching the one that the cursor
+   is on (=M-n=, =M-p=), in the current buffer. You can also easily replace all of
+   them in one go (=M-'=). It’s a nice tool for refactoring.
+   #+begin_src emacs-lisp
+     (i-require 'smartscan)
+     (smartscan-mode 1)
+   #+end_src
+** Dash
+   #+begin_src emacs-lisp
+     (i-require 'dash-at-point)
+     (global-set-key (kbd "C-h C-h") 'dash-at-point)
+   #+end_src
+
+** Ruby
+   #+begin_src emacs-lisp
+     (load-init-file "prog/ruby")
+   #+end_src

@@ -1,0 +1,66 @@
+* MacOS X specific configuration
+
+Here we collect all MacOS X specific configurations that make no sense outside of a mac.
+
+** Use a transparent title bar. Also use srgb colorspace.
+    #+begin_src emacs-lisp
+       (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+       (add-to-list 'default-frame-alist '(ns-appearance . dark))
+       (setq ns-use-srgb-colorspace t)
+    #+end_src
+
+** Setup modifiers
+   We want CMD Meta, Fn Hyper, left-option (left-alt) Super, right-option (right-alt) Alt.
+
+   #+begin_src emacs-lisp
+     (setq mac-command-modifier 'meta)
+     (setq mac-option-modifier 'super)
+     (setq ns-function-modifier 'hyper)
+
+       ;;; if on the Mac, right alt should be alt (not meta, super, hyper
+       ;;; or whatever). This is because I still want to use deadkeys.
+     (setq mac-right-option-modifier nil)
+   #+end_src
+
+** Show file in Finder
+   #+begin_src emacs-lisp
+     ;; reveal-in-finder 2014-02-02
+     ;; Original: http://stackoverflow.com/questions/20510333/in-emacs-how-to-show-current-file-in-finder
+     ;; Modified version
+     (defun reveal-in-finder ()
+       (interactive)
+       (let ((path (buffer-file-name))
+             dir file)
+         (if path
+             ;; if path has been successfully obtained.
+             (progn (setq dir (file-name-directory path))
+                    (setq file (file-name-nondirectory path)))
+           ;; if path is empty, there is no file name. Use the default-directory variable
+           (setq dir (expand-file-name default-directory))
+           )
+         ;; (message (concat "Opening in Finder: " dir file))  ; Show the file name
+         (reveal-in-finder-1 dir file)
+         ))
+     ;;
+     (defun reveal-in-finder-1 (dir file)
+       (let ((script
+              (if file
+                  (concat
+                   "set thePath to POSIX file \"" (concat dir file) "\"\n"
+                   "tell application \"Finder\"\n"
+                   " set frontmost to true\n"
+                   " reveal thePath \n"
+                   "end tell\n"
+                   )
+                (concat
+                 "set thePath to POSIX file \"" (concat dir) "\"\n"
+                 "tell application \"Finder\"\n"
+                 " set frontmost to true\n"
+                 " reveal thePath \n"
+                 "end tell\n"))))
+         ;; (message script)   ; Show the script in the mini-buffer
+         (start-process "osascript-getinfo" nil "osascript" "-e" script)
+         ))
+
+     (global-set-key (kbd "C-x M-f") 'reveal-in-finder)
+   #+end_src

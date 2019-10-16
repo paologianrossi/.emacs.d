@@ -18,3 +18,6 @@ build/
 /.DS_Store
 /network-security.data
 xkcd/
+/smex-items
+/recentf
+/transient/history.el

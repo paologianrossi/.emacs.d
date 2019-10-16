@@ -1,0 +1,19 @@
+* Web development
+
+Here, we have configuration for developing web pages: HTML and variants, Javascript, CSS etc.
+
+We also keep here config for various web-related DSLs like scss, slim, haml, etc.
+
+#+begin_src emacs-lisp
+  (i-require 'web-mode)
+  (add-to-list 'auto-mode-alist '("\\.erb\\'" . web-mode))
+
+  (i-require 'coffee-mode)
+  (add-hook 'coffee-after-compile-hook 'sourcemap-goto-corresponding-point)
+  (defun coffee-after-compile-delete-file (props)
+    (delete-file (plist-get props :sourcemap)))
+  (add-hook 'coffee-after-compile-hook 'coffee-after-compile-delete-file t)
+
+  (i-require 'slim-mode)
+  (i-require 'yaml-mode)
+#+end_src

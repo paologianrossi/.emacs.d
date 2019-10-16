@@ -1,0 +1,52 @@
+* TODO Keybindings
+#+begin_src emacs-lisp
+
+  ;; Use hippie-expand instead of dabbrev
+  (global-set-key (kbd "M-/") 'hippie-expand)
+  (global-set-key (kbd "C-h C-f") 'find-function)
+
+
+  ;; terminal-related bindings
+
+#+end_src
+
+* Email
+  Email in Emacs!
+
+  This is disabled by default as it requires a bunch of dependencies
+  and we don't really use it everywhere.
+
+  Uncomment the line in the block to enable.
+  #+begin_src emacs-lisp
+    ;; (load-init-file "email")
+  #+end_src
+
+* Text-mode
+  Configuration for editing text (as opposed to source code editing) has its own config file [[file:text-mode.org::*Text%20Modes%20configuration][here]].
+  #+begin_src emacs-lisp
+    (load-init-file "text-mode")
+  #+end_src
+
+* Prog-mode
+  Configuration for editing code has its own config file [[file:prog-mode.org::*Prog-mode%20configuration][here]].
+
+  #+begin_src emacs-lisp
+    (load-init-file "prog-mode")
+  #+end_src
+
+* Python-mode
+  For Python, I use Elpy.  I think I will make this myself (getting
+  inspired from elpy and friends), to refactor out
+  programming-related configs into a more generic, reusable file.
+  #+begin_src emacs-lisp
+    (i-require 'elpy)
+      (elpy-enable)
+      (define-key yas-minor-mode-map (kbd "C-c k") 'yas-expand)
+    (define-key global-map (kbd "C-c o") 'iedit-mode)
+  #+end_src
+
+* Ruby-mode
+  Load my Ruby config
+  #+begin_src emacs-lisp
+    (load-init-file "ruby")
+  #+end_src

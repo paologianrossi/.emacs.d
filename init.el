@@ -32,7 +32,6 @@
 
 (require 'org)
 
-
 (defun directory-files-recursive (directory &optional match ignore maxdepth)
   "List files in DIRECTORY and in its sub-directories.
 Return files that match the regular expression MATCH but ignore

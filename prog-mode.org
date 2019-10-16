@@ -2,6 +2,13 @@
 
   In this file, we configure stuff used for general programming and programming modes.
 
+** Auto-revert log files
+   Auto-revert mode is the Emacs version of =tail -f=, with the added
+   emacs gravy (like searching, easy yanking, etc).
+  #+begin_src emacs-lisp
+    (add-to-list 'auto-mode-alist '("\\.log\\'" . auto-revert-mode))
+  #+end_src
+
 ** Highlight current line
    - enable hl-line-mode for prog-mode, but only if we're not on the terminal.
      #+begin_src emacs-lisp
@@ -17,6 +24,7 @@
      (i-require 'projectile)
      (setq projectile-known-projects-file (expand-file-name "projectile-bookmarks.eld" var-dir))
      (projectile-global-mode 1)
+
    #+end_src
 
 ** Yasnippet minor mode
@@ -24,4 +32,16 @@
      (add-hook 'prog-mode-hook
                '(lambda ()
                   (yas-minor-mode)))
+   #+end_src
+** FlyMake
+   FlyMake performs on-the-fly syntax checks on the files being edited
+   using the external syntax check tool (usually the
+   compiler). Highlights erroneous lines and displays associated error
+   messages.
+
+   #+begin_src emacs-lisp
+     (i-require 'flymake)
+     (i-require 'rfringe)
+     (i-require 'flycheck)
+     (global-flycheck-mode)
    #+end_src

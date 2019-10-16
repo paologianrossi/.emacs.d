@@ -290,12 +290,12 @@
    - Encrypt with a symmetric key all subtrees tagged as =:crypt:= on
      save.
      #+begin_src emacs-lisp
-       (i-require 'org-crypt)
-       (org-crypt-use-before-save-magic)
-       (setq org-tags-exclude-from-inheritance (quote ("crypt")))
-       ;; GPG key to use for encryption
-       ;; Either the Key ID or set to nil to use symmetric encryption.
-       (setq org-crypt-key nil)
+       ;       (i-require 'org-crypt)
+              ;; (org-crypt-use-before-save-magic)
+              ;; (setq org-tags-exclude-from-inheritance (quote ("crypt")))
+              ;; ;; GPG key to use for encryption
+              ;; ;; Either the Key ID or set to nil to use symmetric encryption.
+              ;; (setq org-crypt-key nil)
      #+end_src
 
      - Decrypt entr(y|ies)
@@ -317,9 +317,9 @@
 ** Extra links
     - On the Mac, get links from external apps (e.g. current selected mail in Outlook, current page in Chrome)
       #+begin_src emacs-lisp
-        (i-require 'org-mac-link)
-        (add-hook 'org-mode-hook (lambda ()
-                                   (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
+        ;; (i-require 'org-mac-link)
+        ;; (add-hook 'org-mode-hook (lambda ()
+        ;;                            (define-key org-mode-map (kbd "C-c C-g") 'org-mac-grab-link)))
 
       #+end_src
 

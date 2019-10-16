@@ -1,0 +1,396 @@
+* General Behaviours
+
+** Startup messages
+   Startup messages are another source of distraction.  Even though
+   they happen just once (at startup, duh), we remove them because we
+   can.
+   #+begin_src emacs-lisp
+     (setq initial-scratch-message  "")
+     (setq inhibit-startup-message t)
+   #+end_src
+
+   (You also probably want to set =inhibit-startup-echo-area-message= to your
+   username.  This needs to be done in Customize to work.  To do it,
+   =M-x customize-variable inhibit-startup-echo-area-message= and set
+   to your username)
+
+** Encoding
+
+   Setup the system to work in Unicode UTF-8 as much as we can.
+   #+begin_src emacs-lisp
+     (set-terminal-coding-system 'utf-8)
+     (set-keyboard-coding-system 'utf-8)
+     (prefer-coding-system 'utf-8)
+   #+end_src
+
+** Buffers
+    - Set iBuffer up to group stuff by project (VCS) and be tidier.
+    #+begin_src emacs-lisp
+      (i-require 'ibuffer-vc)
+
+      (global-set-key (kbd "C-x C-b") 'ibuffer)
+      (setq ibuffer-formats
+            '((mark modified read-only " "
+                    (name 50 50 :left :elide) " "
+                    filename-and-process)
+              (mark " " (name 16 -1) " " filename)))
+
+      (setq ibuffer-show-empty-filter-groups nil)
+      (add-hook 'ibuffer-mode-hook
+                '(lambda ()
+                   (ibuffer-auto-mode 1)
+                   (ibuffer-vc-set-filter-groups-by-vc-root)))
+    #+end_src
+
+    I take notes more than I test Emacs Lisp code, and I sometimes do that in the =*scratch*= buffer.
+    - The =*scratch*= buffer should be in Org-mode instead of Emacs Lisp. That's good for note taking.
+      #+begin_src emacs-lisp
+        (setq initial-major-mode 'org-mode)
+      #+end_src
+
+    - Instead of killing the =*scratch*= buffer, just bury it.
+      #+begin_src emacs-lisp
+        (defadvice kill-buffer (around kill-buffer-around-advice activate)
+          (let ((buffer-to-kill (ad-get-arg 0)))
+            (if (equal buffer-to-kill "*scratch*")
+                (bury-buffer)
+              ad-do-it)))
+      #+end_src
+
+    - Open the =*scratch*= buffer with a keystroke (F9).
+      #+begin_src emacs-lisp
+        (global-set-key (kbd "<f9>") (lambda() (interactive) (switch-to-buffer "*scratch*")))
+      #+end_src
+
+** Whitespace and fringes
+    - Use the left fringe to show where the file actually ends
+      #+begin_src emacs-lisp
+        (set-fringe-mode '(10 . 0))
+        (setq indicate-empty-lines t)
+      #+end_src
+    - Show whitespace neatly
+      #+begin_src emacs-lisp
+        (i-require 'whitespace)
+        (setq whitespace-line-column 120) ;; limit line length
+        (setq whitespace-style '(spaces tabs newline space-mark tab-mark newline-mark face lines-tail))
+        (setq whitespace-display-mappings
+              ;; all numbers are Unicode codepoint in decimal. e.g. (insert-char 182 1)
+              '(
+                (space-mark nil) ; 32 SPACE, 183 MIDDLE DOT
+                (newline-mark 10 [172 10]) ; 10 LINE FEED
+                (tab-mark 9 [183 9] [92 9]) ; 9 TAB, MIDDLE DOT
+                ))
+        (setq whitespace-global-modes '(not org-mode web-mode "Web" emacs-lisp-mode dired-mode))
+        (global-whitespace-mode 1)
+      #+end_src
+
+** Ergonomics
+    - When editing in the minibuffer, don't walk on the prompt (from
+      [[http://ergoemacs.org/emacs/emacs_stop_cursor_enter_prompt.html]])
+     #+begin_src emacs-lisp
+       (setq minibuffer-prompt-properties (quote (read-only t point-entered minibuffer-avoid-prompt face minibuffer-prompt)))
+     #+end_src
+
+    - Yes and no should never be asked graphically (that also makes emacs on the mac explode...)
+     #+begin_src emacs-lisp
+       (defadvice yes-or-no-p (around prevent-dialog activate)
+         "Prevent yes-or-no-p from activating a dialog"
+         (let ((use-dialog-box nil))
+           ad-do-it))
+       (defadvice y-or-n-p (around prevent-dialog-yorn activate)
+         "Prevent y-or-n-p from activating a dialog"
+         (let ((use-dialog-box nil))
+           ad-do-it))
+     #+end_src
+
+    - Never ask for the long-form 'yes'/'no' form.  Stick to 'y'/'n'
+    #+begin_src emacs-lisp
+      (defalias 'yes-or-no-p 'y-or-n-p)
+    #+end_src
+
+    - Indent with 4 spaces instead of tabs
+      #+begin_src emacs-lisp
+            (setq-default indent-tabs-mode nil
+                    tab-width 4)
+      #+end_src
+
+    - =C-w= and =M-w= copy/kill the current line if no region is selected
+      #+begin_src emacs-lisp
+        ;; http://emacs-fu.blogspot.hk/2009/11/copying-lines-without-selecting-them.html
+        (defadvice kill-ring-save (before slick-copy activate compile)
+          "When called interactively with no active region, copy a single line instead."
+          (interactive
+           (if mark-active
+               (list (region-beginning) (region-end))
+             (message "Copied line")
+             (list (line-beginning-position) (line-beginning-position 2)))))
+
+        (defadvice kill-region (before slick-cut activate compile)
+          "When called interactively with no active region, kill a single line instead."
+          (interactive
+           (if mark-active (list (region-beginning) (region-end))
+             (list (line-beginning-position)
+                   (line-beginning-position 2)))))
+      #+end_src
+
+    - When saving, delete all trailing whitespace and ensure there is always a newline at the end of the file;
+      #+begin_src emacs-lisp
+      (add-hook 'write-file-hooks 'delete-trailing-whitespace)
+      (setq require-final-newline t)
+      #+end_src
+
+    - When moving at beginning of the line (C-a): on first call go to indentation, on next call go to actual BOL;
+      #+begin_src emacs-lisp
+        (defadvice move-beginning-of-line (around smarter-bol activate)
+          ;; Move to requested line if needed.
+          (let ((arg (or (ad-get-arg 0) 1)))
+            (when (/= arg 1)
+              (forward-line (1- arg))))
+          (let ((pos (point)))
+            (back-to-indentation)
+            (when (= pos (point))
+              ad-do-it)))
+      #+end_src
+
+    - Enable narrowing
+      #+begin_src emacs-lisp
+        (put 'narrow-to-defun 'disabled nil)
+        (put 'narrow-to-page 'disabled nil)
+        (put 'narrow-to-region 'disabled nil)
+      #+end_src
+
+** Going places
+   - Enable scrolling
+     #+begin_src emacs-lisp
+       (put 'scroll-left 'disabled nil)
+     #+end_src
+
+   - Make a more intuitive scrolling experience. Margin is 5 lines,
+     and don't move the point as you scroll.
+   #+begin_src emacs-lisp
+     (setq scroll-margin 5
+       scroll-preserve-screen-position 1)
+   #+end_src
+
+   - Sometimes I =C-v= while wanting to =C-b=.  If that happens,
+   =C-S-v= sends me back to before scrolling.  The same applies to
+   =M-v= / =M-S-v= (and unscrolling is independent of the key: you
+   can uscroll a =M-v= with =C-S-v=).
+   This comes from the very old and very good Giraffe Book (Writing
+   GNU Emacs Extensions) by Bob Glickstein.
+
+   #+begin_src emacs-lisp
+     (defvar unscroll-point (make-marker) "Text position for `unscroll'.")
+     (defvar unscroll-window-start (make-marker) "Text position for `unscroll'.")
+
+     (put 'scroll-up-command 'unscrollable t)
+     (put 'scroll-down-command 'unscrollable t)
+
+     (defun unscroll-maybe-remember ()
+       (if (not (get last-command 'unscrollable))
+           (progn (set-marker unscroll-point (point))
+                  (set-marker unscroll-window-start (window-start)))))
+
+
+     (defadvice scroll-up (before remember-for-unscroll activate compile)
+       "Remember where we come from when scrolling."
+       (unscroll-maybe-remember))
+
+     (defadvice scroll-down (before remember-for-unscroll activate compile)
+       "Remember where we come from when scrolling."
+       (unscroll-maybe-remember))
+
+     (defun unscroll ()
+       "Jump to location defined by `unscroll-to'."
+       (interactive)
+       (if (not unscroll-point)
+           (error "Can't unscroll"))
+       (goto-char unscroll-point)
+       (set-window-start nil unscroll-window-start))
+
+     (global-set-key (kbd "C-S-v") 'unscroll)
+     (global-set-key (kbd "M-S-v") 'unscroll)
+   #+end_src
+
+   - Sometimes, we move around the buffer to check for something, and then want to go back to where we're editing. Do that with a keystroke.
+   #+begin_src emacs-lisp
+     (i-require 'goto-chg)
+     (global-set-key (kbd "C-.") 'goto-last-change)
+     (global-set-key (kbd "C->") 'goto-last-change-reverse)
+   #+end_src
+
+   - When doing goto-line, show line numbers while choosing the line to go to.
+   #+begin_src emacs-lisp
+     (global-set-key [remap goto-line] 'goto-line-with-feedback)
+
+     (defun goto-line-with-feedback ()
+       "Show line numbers temporarily, while prompting for the line number input"
+       (interactive)
+       (unwind-protect
+           (progn
+             (linum-mode 1)
+             (goto-line (read-number "Goto line: ")))
+         (linum-mode -1)))
+   #+end_src
+** Lines
+     | Functionality                             | Binding            | Mnemonic           |
+     |-------------------------------------------+--------------------+--------------------|
+     | newline and indent                        | C-j, C-<RET>       | "fatter" return    |
+     | open line above current line (and indent) | C-S-j, C-S-<RET>   | As above, but "up" |
+     | drag line or lines of region up/down      | M-<up>/M-<down>    |                    |
+     | drag word or region left/right            | M-<left>/M-<right> |                    |
+     | join line with the preceding              | M-j                |                    |
+
+  #+begin_src emacs-lisp
+    (defun open-line-above ()
+      "Insert indented line *above* current line."
+      (interactive)
+      (beginning-of-line)
+      (newline)
+      (forward-line -1)
+      (indent-for-tab-command))
+
+    (global-set-key (kbd "<C-return>") 'newline-and-indent)
+    (global-set-key (kbd "<C-S-return>") 'open-line-above)
+    (global-set-key (kbd "C-S-j") 'open-line-above)
+
+    (i-require 'drag-stuff)
+    (add-to-list 'drag-stuff-except-modes 'org-mode)
+    (drag-stuff-define-keys)
+    (drag-stuff-global-mode 1)
+
+    (global-set-key (kbd "M-j")
+                    (lambda ()
+                      (interactive)
+                      (join-line -1)))
+  #+end_src
+** Undo/Redo
+    - Use =undo-tree-mode=
+    #+begin_src emacs-lisp
+      (i-require 'undo-tree)
+      (global-undo-tree-mode)
+    #+end_src
+** Fullscreen
+   - Cycle to "fullscreen" states without the mouse.  Loop in this order:
+     - =normal=
+     - =maximized=
+     - =fullboth= (fullscreen-like)
+     - =fullwidth=
+     - =fullheight=
+     #+begin_src emacs-lisp
+       (i-require 'writeroom-mode)
+       (defun cycle-fullscreen ()
+         (interactive)
+         (let ((flow '((nil . 'maximized) (maximized . 'fullboth)
+                       (fullboth . 'fullwidth) (fullwidth . 'fullheight)
+                       (fullheight . nil))) (current (frame-parameter nil 'fullscreen)))
+           (set-frame-parameter nil 'fullscreen (car (cdr (assoc-default current flow nil nil))))
+           ))
+
+       (global-set-key (kbd "<s-return>") 'cycle-fullscreen)
+       (global-set-key (kbd "<S-s-return>") 'writeroom-mode)
+     #+end_src
+
+** Window management
+   Using multiple frames and windows, especially also using
+   emacsclient, is pretty powerful.  Let's make it easy to work with.
+
+   - Function =detach-window= pulls a window out in a new frame.
+     #+begin_src emacs-lisp
+       (defun detach-window (&optional window)
+         (interactive)
+         (set-buffer (window-buffer window))
+         (let ((old-frame (selected-frame))
+               (new-frame (make-frame)))
+           (select-frame old-frame)
+           (delete-window window)
+           (select-frame new-frame)
+           ))
+     #+end_src
+
+   - Ace window for fast window selection
+     #+begin_src emacs-lisp
+       (i-require 'ace-window)
+     #+end_src
+
+   - Window key bindings (note that "window" and "frame" are used in
+     the Emacs sense):
+
+     | Functionality             | Binding      | Mnemonic                                                                     |
+     |---------------------------+--------------+------------------------------------------------------------------------------|
+     | Focus on other frame      | =M-`=        | As in WM                                                                     |
+     | Delete this frame         | =s-w s-w=    | Cmd-W in MacOS closes windows                                                |
+     | Create a frame            | =s-w s-n=    | 'n' for "new frame"                                                          |
+     | Detach window             | =s-w s-d=    | 'd' for "detach"                                                             |
+     | Close window              | =s-w w=      | 'w' for closing (see above), but without modifiers since a window is lighter |
+     | Split window horizontally | =s-w -=      | Split along an horizontal line ('-')                                         |
+     | Split window vertically   | =s-w <pipe>= | Split along a vertical line                                                  |
+     | Keep only current window  | =s-w W=      | Capitalized 'W' is for closing other things                                  |
+     | Keep only current frame   | =s-w s-W=    | Capitalized 'W' is for closing other things                                  |
+     | Balance windows           | =s-w +=      | Usually bound to =C-x +=                                                     |
+     | Open file in new window   | =s-w f=      | 'f' for file as in =C-x f=                                                   |
+     | Open file in new frame    | =s-w F=      | 'f' for file as in =C-x f=, but capitalized because frames are heavy         |
+     | Jump to window            | =s-w j=      | 'j' for jump                                                                 |
+
+     #+begin_src emacs-lisp
+       (global-set-key (kbd "M-`") 'other-frame)
+       (define-prefix-command 'window-management-map)
+       (global-set-key (kbd "s-w") 'window-management-map)
+       (define-key window-management-map (kbd "s-w") 'delete-frame)
+       (define-key window-management-map (kbd "s-n") 'make-frame-command)
+       (define-key window-management-map (kbd "s-d") 'detach-window)
+       (define-key window-management-map (kbd "w") 'delete-window)
+       (define-key window-management-map (kbd "-") 'split-window-below)
+       (define-key window-management-map (kbd "|") 'split-window-right)
+       (define-key window-management-map (kbd "W") 'delete-other-windows)
+       (define-key window-management-map (kbd "s-W") 'delete-other-frames)
+       (define-key window-management-map (kbd "+") 'balance-windows)
+       (define-key window-management-map (kbd "f") 'find-file-other-window)
+       (define-key window-management-map (kbd "F") 'find-file-other-frame)
+       (define-key window-management-map (kbd "j") 'ace-window)
+     #+end_src
+
+   - Keep history of windows layouts and undo/redo them with =C-c <left>= and =C-c <right>=
+     #+begin_src emacs-lisp
+       (winner-mode 1)
+     #+end_src
+
+** Searching and replacing
+   - Use Anzu for search and replace
+     #+begin_src emacs-lisp
+       (i-require 'anzu)
+       (global-anzu-mode 1)
+       (set-face-attribute 'anzu-mode-line nil
+                           :foreground "#770000" :weight 'bold)
+
+       (setq anzu-mode-lighter "")
+       (setq anzu-deactivate-region t)
+       (setq anzu-search-threshold 1000)
+       (setq anzu-replace-to-string-separator " => ")
+
+       (define-prefix-command 'replace-map)
+       (global-set-key (kbd "M-%") 'replace-map)
+       (define-key replace-map (kbd "%") 'anzu-query-replace)
+       (define-key replace-map (kbd "M-%") 'anzu-query-replace-regexp)
+       (define-key replace-map (kbd ".") 'anzu-query-replace-at-cursor)
+       (define-key replace-map (kbd ">") 'anzu-query-replace-at-cursor-thing)
+     #+end_src
+
+   - Activate occur easily inside isearch
+     #+begin_src emacs-lisp
+       (define-key isearch-mode-map (kbd "C-o") 'isearch-occur)
+     #+end_src
+
+** Bookmarks and Registries
+   Bookmarks and registries are good ways to remember positions etc.
+   #+begin_src emacs-lisp
+     (require 'bookmark)
+     (require 'bookmark+)
+
+      (defun ido-bookmark-jump (bname)
+       "*Switch to bookmark interactively using `ido'."
+       (interactive (list (ido-completing-read "Bookmark: " (bookmark-all-names) nil t)))
+       (bookmark-jump bname))
+     (global-set-key (kbd "s-b") 'bookmark-set)
+     (global-set-key (kbd "s-B") 'ido-bookmark-jump)
+   #+end_src
